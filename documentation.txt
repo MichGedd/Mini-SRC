@@ -1,1 +1,17 @@
-hello
+Naming Conventions:
+
+for modules:
+
+for wires:
+
+-------------------
+
+Heirarchy:
+
+-------------------
+Design Decisions:
+-------------------
+System Elements:
+-------------------
+Requirements:
+
