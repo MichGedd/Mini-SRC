@@ -1,17 +1,17 @@
 Naming Conventions:
 
 for modules:
+module_name_<bus width> ex cla_32. lowercase with underscores
+<in/out>_variable_name - For the output sum of a adder, out_sum
 
-for wires:
+for registers and wires:
+<w/r>_name_of_variable where w is wire and r is reg
 
+for testbenches:
+module_name_<bus width>_tb ex system_tb
 -------------------
-
 Heirarchy:
 
--------------------
-Design Decisions:
--------------------
-System Elements:
--------------------
-Requirements:
+top: system
+
 
