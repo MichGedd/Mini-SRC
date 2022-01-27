@@ -4,10 +4,10 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 	/*
 	0000 = add
 	0001 = sub
-	0010 = shift right
-	0011 = shift left
-	0100 = rotate right
-	0101 = rotate left
+	0010 = rotate right
+	0011 = rotate left
+	0100 = shift right
+	0101 = shift left
 	0110 = and
 	0111 = or
 	1000 = mul
@@ -20,6 +20,7 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 	wire [31:0] w_or_32;
 	wire [31:0] w_not_32;
 	wire [31:0] w_adder_sum_out;
+	wire [31:0] w_shift_rot_out;
 	wire w_adder_carry_out;
 	
 	reg [31:0] r_a_pre_process;
@@ -36,6 +37,12 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 		.in_carry (r_adder_carry_in),
 		.out_sum (w_adder_sum_out),
 		.out_carry (w_adder_carry_out));
+	
+	shift_rot_32 shifter (.in_x (in_a),
+		.in_y (in_b),
+		.in_left (in_opcode[0]),
+		.in_rot (in_opcode[1]),
+		.out (w_shift_rot_out));
 	
 	always @(*) begin
 		case(in_opcode)  // Pre-process step before addition/not
@@ -72,6 +79,10 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 			4'b0001,
 			4'b1010,
 			4'b1011 : out_result = w_adder_sum_out;  // ADD, SUB, NOT, INV
+			4'b0010,
+			4'b0011,
+			4'b0100,
+			4'b0101 : out_result = w_shift_rot_out;  // ROR, ROL, SHR, SHL
 			4'b0110 : out_result = w_and_32;  // AND
 			4'b0111 : out_result = w_or_32;  // OR
 			default : out_result = 0;
