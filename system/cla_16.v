@@ -15,6 +15,7 @@ module cla_16(input [15:0] in_x, input [15:0] in_y, input in_carry, output [15:0
 				.in_y (in_y[i+3:i]),
 				.in_carry (w_carry[i/4]),
 				.out_sum (out_sum[i+3:i]),
+				.out_carry (),
 				.out_generate (w_generate[i/4]),
 				.out_propogate (w_propogate[i/4]));
 		end

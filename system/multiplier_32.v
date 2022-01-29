@@ -6,7 +6,7 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 	wire [63:0] w_reduce_8_to_4 [0:3];
 	wire [63:0] w_reduce_4_to_2 [0:1];
 	wire [32:0] w_padded_multiplicand;
-	wire w_adder_low_carry_out;
+	//wire w_adder_low_carry_out;
 	
 	assign w_padded_multiplicand = {in_y, 1'b0};
 	
@@ -52,7 +52,7 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 			.out_carry (w_reduce_4_to_2[1]),
 			.out_cout ());
 			
-		adder_32 adder_low(.in_x (w_reduce_4_to_2[0][31:0]),
+		/*adder_32 adder_low(.in_x (w_reduce_4_to_2[0][31:0]),
 			.in_y (w_reduce_4_to_2[1][31:0]),
 			.in_carry (1'b0),
 			.out_sum (out_product[31:0]),
@@ -62,7 +62,15 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 			.in_y (w_reduce_4_to_2[1][63:32]),
 			.in_carry (w_adder_low_carry_out),
 			.out_sum (out_product[63:32]),
-			.out_carry ());
+			.out_carry ());*/
+		
+		cla_64 adder(.in_x (w_reduce_4_to_2[0]),
+			.in_y (w_reduce_4_to_2[1]),
+			.in_carry (1'b0),
+			.out_sum (out_product),
+			.out_carry (),
+			.out_propogate (),
+			.out_generate ());
 			
 	endgenerate
 
