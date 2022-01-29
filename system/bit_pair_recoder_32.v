@@ -1,8 +1,8 @@
 module bit_pair_recoder_32(input [31:0] in_multiplier, input [2:0] in_bit_pair, output reg [63:0] out_recode);
 
 	wire [31:0] w_neg_multiplier;  // Output for -1
-	wire [31:0] w_pos_shift;  // Output for +2
-	wire [31:0] w_neg_shift;  // Output for -2
+	wire [32:0] w_pos_shift;  // Output for +2
+	wire [32:0] w_neg_shift;  // Output for -2
 	
 	adder_32 adder(.in_x (~in_multiplier),
 		.in_y (32'b0),
@@ -10,8 +10,8 @@ module bit_pair_recoder_32(input [31:0] in_multiplier, input [2:0] in_bit_pair, 
 		.out_sum (w_neg_multiplier),
 		.out_carry ());
 	
-	assign w_pos_shift = {in_multiplier[30:0], 1'b0};
-	assign w_neg_shift = {w_neg_multiplier[30:0], 1'b0};
+	assign w_pos_shift = {in_multiplier, 1'b0};
+	assign w_neg_shift = {w_neg_multiplier, 1'b0};
 
 	always @(*) begin
 		case(in_bit_pair)
@@ -19,8 +19,8 @@ module bit_pair_recoder_32(input [31:0] in_multiplier, input [2:0] in_bit_pair, 
 			3'b111:  out_recode = 64'b0;  // 0 x M
 			3'b001,
 			3'b010:  out_recode = {{32{in_multiplier[31]}}, in_multiplier};  // +1 x M
-			3'b011:  out_recode = {{32{w_pos_shift[31]}}, w_pos_shift}; // +2 x M
-			3'b100:  out_recode = {{32{w_neg_shift[31]}}, w_neg_shift}; // -2 x M
+			3'b011:  out_recode = {{31{w_pos_shift[32]}}, w_pos_shift}; // +2 x M
+			3'b100:  out_recode = {{31{w_neg_shift[32]}}, w_neg_shift}; // -2 x M
 			3'b101,
 			3'b110:  out_recode = {{32{w_neg_multiplier[31]}}, w_neg_multiplier}; // -1 x M
 			default: out_recode = 64'b0;
