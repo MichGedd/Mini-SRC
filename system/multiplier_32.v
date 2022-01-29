@@ -6,12 +6,13 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 	wire [63:0] w_reduce_8_to_4 [0:3];
 	wire [63:0] w_reduce_4_to_2 [0:1];
 	wire [32:0] w_padded_multiplicand;
-	//wire w_adder_low_carry_out;
 	
 	assign w_padded_multiplicand = {in_y, 1'b0};
 	
 	genvar i;
 	
+	// This is SO MUCH Combinational Logic. Maximum Clock is ~88.7MHz. Might not be an issue as FPGA clock is 50MHz, but we can try to optimize this later.
+	// I think the booth recode step might be the longest (due to two cla_16 in ripple)?
 	generate
 		for(i = 0; i < 16; i = i + 1) begin : gen_partial_products
 			bit_pair_recoder_32 recoder(.in_multiplier (in_x),
@@ -29,7 +30,7 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 				.in_cin (1'b0),
 				.out_sum (w_reduce_16_to_8[2*i]),
 				.out_carry (w_reduce_16_to_8[(2*i)+1]),
-				.out_cout ());  // If theres a problem with multiplication, it might be because we ignore the cout between levels. Potentially must fix for all levels
+				.out_cout ());
 		end
 		
 		for(i = 0; i < 2; i = i + 1) begin : gen_reduce_8_to_4
@@ -51,18 +52,6 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 			.out_sum (w_reduce_4_to_2[0]),
 			.out_carry (w_reduce_4_to_2[1]),
 			.out_cout ());
-			
-		/*adder_32 adder_low(.in_x (w_reduce_4_to_2[0][31:0]),
-			.in_y (w_reduce_4_to_2[1][31:0]),
-			.in_carry (1'b0),
-			.out_sum (out_product[31:0]),
-			.out_carry (w_adder_low_carry_out));
-		
-		adder_32 adder_high(.in_x (w_reduce_4_to_2[0][63:32]),
-			.in_y (w_reduce_4_to_2[1][63:32]),
-			.in_carry (w_adder_low_carry_out),
-			.out_sum (out_product[63:32]),
-			.out_carry ());*/
 		
 		cla_64 adder(.in_x (w_reduce_4_to_2[0]),
 			.in_y (w_reduce_4_to_2[1]),

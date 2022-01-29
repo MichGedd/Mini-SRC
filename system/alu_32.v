@@ -73,7 +73,7 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 			default : r_a_inverted = r_a_pre_process;  // Default is pass through values
 		endcase
 		
-		case(in_opcode)
+		case(in_opcode)  // Determine Adder Carry in
 			4'b0001,
 			4'b1010 : r_adder_carry_in = 1;
 			default : r_adder_carry_in = 0;
