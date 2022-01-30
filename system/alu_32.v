@@ -22,6 +22,7 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 	wire [31:0] w_adder_sum_out;
 	wire [31:0] w_shift_rot_out;
 	wire [63:0] w_multi_product_out;
+	wire [63:0] w_div_out;  // HI byte is reminder, LO byte is quotient
 	wire w_adder_carry_out;
 	
 	reg [31:0] r_a_pre_process;
@@ -48,6 +49,11 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 	multiplier_32 multiplier (.in_x (in_a),
 		.in_y (in_b),
 		.out_product (w_multi_product_out));
+		
+	divider_32 divider (.in_dividend (in_a),
+		.in_divisor (in_b),
+		.out_quotient (w_div_out[31:0]),
+		.out_remainder (w_div_out[63:32]));
 	
 	always @(*) begin
 		case(in_opcode)  // Pre-process step before addition/not
@@ -91,6 +97,7 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 			4'b0110 : out_result = w_and_32;  // AND
 			4'b0111 : out_result = w_or_32;  // OR
 			4'b1000 : out_result = w_multi_product_out;  // MUL
+			4'b1001 : out_result = w_div_out; // DIV
 			default : out_result = 0;
 		endcase
 	end
@@ -126,6 +133,8 @@ module alu_32_tb;
 		#(delay) in_a = 32'h0000FFFF; in_b = 32'h000000FF; opcode = 4'b0001;  // SUB
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
 		#(delay) in_a = 32'hFFFFFFF3; in_b = 32'hB; opcode = 4'b1000;  // MUL
+		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
+		#(delay) in_a = 32'ha; in_b = 32'hFFFFFFFD; opcode = 4'b1001;  // DIV
 	end
 	
 endmodule

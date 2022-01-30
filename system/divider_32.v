@@ -1,4 +1,12 @@
 module divider_32(input [31:0] in_dividend, input [31:0] in_divisor, output reg [31:0] out_quotient, output reg [31:0] out_remainder);
+
+	// We have been hoodwinked, bamboozled, led astray, run amuck, and flat out decieved by the ELEC 374 lecture slides.
+	// Lecture Slides: Array Divisors are super fast y'all
+	// Our Array Divisor: UwU 4.01 MHz max clock pweez 
+	//----------------------------------------------------------------------
+	// In all seriousness we really need to reduce the ammount of logic here.
+	// Biggest issue is probably the fact that the carry/mode gets propogated between rows and
+	// has 32^2 full adders to pass through until we get to the bottom.....
 	
 	reg [31:0] w_pos_divisor;
 	reg [31:0] w_pos_dividend;
