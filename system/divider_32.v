@@ -8,6 +8,8 @@ module divider_32(input [31:0] in_dividend, input [31:0] in_divisor, output reg 
 	// Biggest issue is probably the fact that the carry/mode gets propogated between rows and
 	// has 32^2 full adders to pass through until we get to the bottom.....
 	
+	// Update: Switching from RCA to two cla_16 in ripple managed to increase clock speed from 4.01 MHz to 6.0 MHz, a 50% speed up. Maybe see if we can use booth's to reduce to 16 layers rather than 32?
+	
 	reg [31:0] w_pos_divisor;
 	reg [31:0] w_pos_dividend;
 	wire [31:0] w_inv_divisor;

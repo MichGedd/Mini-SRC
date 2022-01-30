@@ -2,28 +2,19 @@ module array_division_row_32 (input [31:0] in_x, input [31:0] in_y, input in_mod
 
 	// Currently this is essentially just a 32-bit RCA with with carry_in as in_mode, a_in as in_y ^ mode_in, and b_in as in_x.
 	// In theory we could change this to a 32-bit CLA, reducing carry propogation from 32^2 to 32
-
-	wire [32:0] w_modes;
-	wire [32:0] w_carries;
+	// Update: Changed to adder 32. See comments above on why.
+	// Update 2: The divisor circuit takes forever to compile with these new changes, but I'm not sure why? Compiling divider_32 takes 4 min.
 	
-	assign w_carries[32] = w_modes[32];
-	assign w_modes[0] = in_mode;
-	assign out_carry = w_carries[0];
+	wire [31:0] w_in_mode_extend = {32{in_mode}};
 	
-	genvar i;
+	assign out_y = in_y;
 	
-	generate
-		for (i = 0; i < 32; i = i + 1) begin : gen_array_cells
-			array_division_cell adc (.in_x (in_x[31-i]),
-				.in_y (in_y[31-i]),
-				.in_mode (w_modes[i]),
-				.in_carry (w_carries[i+1]),
-				.out_sum (out_result[31-i]),
-				.out_y (out_y[31-i]),
-				.out_mode (w_modes[i+1]),
-				.out_carry (w_carries[i]));
-		end
-	endgenerate
+	
+	adder_32 adder(.in_x (in_x),
+		.in_y (in_y ^ w_in_mode_extend),
+		.in_carry (in_mode),
+		.out_sum (out_result),
+		.out_carry (out_carry));
 
 endmodule
 
