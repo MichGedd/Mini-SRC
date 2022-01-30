@@ -1,5 +1,8 @@
 module array_division_row_32 (input [31:0] in_x, input [31:0] in_y, input in_mode, output [31:0] out_result, output [31:0] out_y, output out_carry);
 
+	// Currently this is essentially just a 32-bit RCA with with carry_in as in_mode, a_in as in_y ^ mode_in, and b_in as in_x.
+	// In theory we could change this to a 32-bit CLA, reducing carry propogation from 32^2 to 32
+
 	wire [32:0] w_modes;
 	wire [32:0] w_carries;
 	
