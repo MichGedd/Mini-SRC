@@ -32,13 +32,55 @@ module register_32_tb;
 	
 	register_32 DUT (.D(datain), .Q(dataout), .clr(clearin), .clk(clockin), .write(writein));
 	
+	parameter Default = 4'b0000;
+	parameter s_clear = 4'b0001;
+	parameter s_write_1 = 4'b0010;
+	parameter s_write_2 = 4'b0011;
 	
-	//Something is messed up right now
-	
+	reg [3:0] Present_state = Default;
 	
 	initial
 		begin
-			
+			clockin = 0;
+			forever #10 clockin = ~clockin;
+	end
+	
+	always @ (posedge clockin)
+	begin
+		case (Present_state)
+			Default: Present_state = s_write_1;
+			s_write_1: Present_state = s_write_2;
+			s_write_2: Present_state = s_clear;
+			s_clear : Present_state = s_write_1;
+		endcase
+	end
+	
+	always @ (Present_state)
+	begin
+		case(Present_state)
+			Default: begin
+				datain = 'h00000000;
+				writein = 0;
+				clearin = 1;
+			end
+			s_write_1: begin
+				clearin = 1;
+				datain = 'h11111111;
+				writein = 1;
+			end
+			s_write_2: begin
+				clearin = 1;
+				writein = 1;
+				datain = 'h11110000;
+			end
+			s_clear: begin
+				#10; //this is just to show the change in the previous state. 
+				clearin = 0;
+			end
+		endcase
+	end
+	
+	/*
 			//set the initial values:
 			clockin = 0;
 			clearin = 0;
@@ -87,7 +129,7 @@ module register_32_tb;
 			
 			clockin = 1;
 			#period;
-		end
+			*/
 endmodule
 
 

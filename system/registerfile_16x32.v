@@ -119,7 +119,14 @@ reg r_read; //retrieves the Adata from Aselect location.
 reg r_clk; //clock in
 
 
-localparam period = 20;
+parameter Default = 4'b0000;
+parameter s_clear_all = 4'b0001;
+parameter s_write_to_first = 4'b0010;
+parameter s_write_to_first_2 = 4'b0011;
+parameter s_write_to_second = 4'b0100;
+parameter s_read_from_second = 4'b0101;
+
+reg [3:0] Present_state = Default;
 
 registerfile_16x32 DUT (
 	.in_Cdata(r_Cdata),
@@ -132,8 +139,70 @@ registerfile_16x32 DUT (
 	.in_clk(r_clk)
  );
  
- initial begin
+initial
+	begin
+		r_clk = 0;
+		forever #10 r_clk = ~r_clk;
+end
+
+always @ (posedge r_clk)
+	begin
+		case (Present_state)
+			Default : Present_state = s_write_to_first;
+			s_write_to_first : Present_state = s_write_to_first_2;
+			s_write_to_first_2 : Present_state = s_write_to_second;
+			s_write_to_second : Present_state = s_read_from_second;
+			s_read_from_second : Present_state = s_clear_all;
+		endcase
+	end
+	
+always @ (Present_state)
+begin
+	case(Present_state)
+	Default: begin
+		r_Cdata = 'h00000000;
+		r_Cselect = 'b0000;
+		r_Aselect = 'b0000;
+		r_clr = 1;
+		r_write = 0;
+		r_read = 0;
+	end
+	s_clear_all: begin
+		r_Cdata = 'h00000000;
+		r_Cselect = 'b0000;
+		r_Aselect = 'b0000;
+		r_clr = 0;
+		r_write = 0;
+		r_read = 0;
+	end
+	s_write_to_first: begin
+		r_Cdata = 'h11111111;
+		r_Cselect = 'b0000;
+		r_clr = 1;
+		r_write = 1;
+		r_read = 0;
+	end
+	s_write_to_first_2: begin
+		r_Cdata = 'h11110000;
+		r_Cselect = 'b0000;
+		r_clr = 1;
+		r_write = 1;
+		r_read = 0;
+	end
+	s_write_to_second: begin
+		r_Cdata = 'h11111111;
+		r_Cselect = 'b0001;
+		r_clr = 1;
+		r_write = 1;
+		r_read = 0;
+	end
+	endcase
+end
+	
+	
  
+	
+ /*
  r_clk = 0;
  r_Cdata = 'h00000000;
  r_Cselect = 'b0000;
@@ -163,15 +232,16 @@ registerfile_16x32 DUT (
  r_read = 0;
  
  #period
+  1;
+ r_read = 0;
  
  r_clk = 1;
  r_Cdata = 'h11111111;
  r_Cselect = 'b0000;
  r_Aselect = 'b0000;
  r_clr = 1;
- r_write = 1;
- r_read = 0;
+ r_write =
  
- end
+ */
 
 endmodule
