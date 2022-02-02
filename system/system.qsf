@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CEBA4F23C7
-set_global_assignment -name TOP_LEVEL_ENTITY registerfile_16x32
+set_global_assignment -name TOP_LEVEL_ENTITY divider_32
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:29:54  JANUARY 25, 2022"
 set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
@@ -47,9 +47,36 @@ set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name VERILOG_FILE system.v
-set_global_assignment -name VERILOG_FILE register_32.v
+set_global_assignment -name VERILOG_FILE alu_32.v
+set_global_assignment -name VERILOG_FILE b_cell_1.v
+set_global_assignment -name VERILOG_FILE cla_logic.v
+set_global_assignment -name VERILOG_FILE cla_4.v
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
+set_global_assignment -name VERILOG_FILE cla_16.v
+set_global_assignment -name VERILOG_FILE adder_32.v
+set_global_assignment -name VERILOG_FILE rotate_left_32.v
+set_global_assignment -name VERILOG_FILE rotate_right_32.v
+set_global_assignment -name VERILOG_FILE shift_rot_32.v
+set_global_assignment -name VERILOG_FILE shift_mask_32.v
+set_global_assignment -name VERILOG_FILE bit_pair_recoder_32.v
+set_global_assignment -name VERILOG_FILE reducer_4_to_2.v
+set_global_assignment -name VERILOG_FILE reducer_64.v
+set_global_assignment -name VERILOG_FILE multiplier_32.v
+set_global_assignment -name VERILOG_FILE cla_64.v
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC OFF
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name VERILOG_FILE array_division_row_32.v
+set_global_assignment -name VERILOG_FILE divider_32.v
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
+set_global_assignment -name SMART_RECOMPILE OFF
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name VERILOG_FILE register_32.v
 set_global_assignment -name VERILOG_FILE registerfile_16x32.v
 set_global_assignment -name VERILOG_FILE decoder_4_to_16.v
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
