@@ -1,0 +1,129 @@
+module datapath(input clk,
+	input [3:0] in_regfile_location,  // Location to read from
+	input [3:0] in_alu_opcode, // ALU opcode
+	input [31:0] in_mem_data,  // Emulated data from memory
+	input in_reg_clear,  // Clear all registers
+	// Read signals
+	input in_regfile_read,
+	input in_hi_read,
+	input in_lo_read,
+	input in_z_hi_read,
+	input in_z_lo_read,
+	input in_pc_read,
+	input in_mdr_read,
+	input in_inport_read,
+	input in_c_read,
+	input in_mdr_select, // This selects whether to read from bus or memory
+	// Write signals
+	input in_regfile_write,
+	input in_hi_write,
+	input in_lo_write,
+	input in_z_write,
+	input in_pc_write,
+	input in_mdr_write,
+	input in_ir_write,
+	input in_y_write,
+	input in_mar_write,
+	output out_bus);
+
+	reg [31:0] r_bus;  // This is the bus
+	
+	wire [31:0] w_regfile_out;
+	wire [31:0] w_PC_out;
+	wire [31:0] w_IR_out;
+	wire [31:0] w_Y_out;
+	wire [63:0] w_Z_out;
+	wire [31:0] w_mar_out;
+	wire [31:0] w_HI_out;
+	wire [31:0] w_LO_out;
+	wire [31:0] w_MDR_out;
+	
+	wire [63:0] w_alu_out;
+
+	
+	wire [8:0] w_bus_select_signals; // Make sure to asign your reg out signals
+	
+	assign w_bus_select_signals = {in_c_read, in_inport_read, in_mdr_read, in_pc_read, in_z_lo_read, in_z_hi_read, in_lo_read, in_hi_read, in_regfile_read};
+	assign out_bus = r_bus;
+	
+	registerfile_16x32 regfile( .in_Cdata (r_bus),
+		.in_Cselect (in_regfile_location),
+		.in_Aselect (in_regfile_location),
+		.out_Adata (w_regfile_out),
+		.in_clr (in_reg_clear),  
+		.in_write (in_regfile_write),
+		.in_read (in_regfile_read),
+		.in_clk (clk));
+		
+	register_32 PC (.D (r_bus),  // We are going to have to add our own adder for PC
+		.Q (w_PC_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_pc_write));
+	
+	register_32 IR (.D (r_bus),
+		.Q (w_IR_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_ir_write));
+	
+	register_32 Y (.D (r_bus),
+		.Q (w_Y_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_y_write));
+	
+	register_64 Z (.D (w_alu_out),
+		.Q (w_Z_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_z_write));
+	
+	register_32 MAR (.D (r_bus),
+		.Q (w_mar_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_mar_write));
+	
+	register_32 HI (.D (r_bus),
+		.Q (w_HI_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_hi_write));
+	
+	register_32 LO (.D (r_bus),
+		.Q (w_LO_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_lo_write));
+	
+	memory_data_register_32 mdr(.in_bus (r_bus),
+		.in_memory (in_mem_data),
+		.in_read (in_mdr_select),
+		.in_clr (in_reg_clear),
+		.in_clk (clk),
+		.in_write (in_mdr_write),
+		.out (w_MDR_out));
+	
+	alu_32 alu(.in_a (w_Y_out),
+		.in_b (w_bus),
+		.in_opcode (in_alu_opcode),
+		.out_result (w_alu_out));
+	
+	always @(*) begin
+		case (w_bus_select_signals) 
+			9'b000000001: r_bus = w_regfile_out;  // Reg File Out
+			9'b000000010: r_bus = w_HI_out;  // Reg HI
+			9'b000000100: r_bus = w_LO_out;  // Reg LO
+			9'b000001000: r_bus = w_Z_out[63:32];  // Reg Z HI
+			9'b000010000: r_bus = w_Z_out[31:0];  // Reg Z LO
+			9'b000100000: r_bus = w_PC_out;  // Reg PC
+			9'b001000000: r_bus = w_MDR_out;  // Reg MDR
+			9'b010000000: r_bus = 32'b0;  // Reg InPort
+			9'b100000000: r_bus = 32'b0;  // C_sign extend
+			default: r_bus = 32'hx;
+		endcase
+	end
+		
+	
+endmodule
