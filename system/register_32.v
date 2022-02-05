@@ -12,7 +12,7 @@ module register_32(input [31:0] D, output [31:0] Q, input clr, input clk, input 
 	always @ (posedge clk, negedge clr) //need to make this also triggered by clear
 	if(clr == 0) begin
 		value_32 [31:0] <= 'h00000000;
-	end else if(write == 1) begin
+	end else if(write == 1 && clk == 1) begin
 		value_32 [31:0] <= D [31:0];
 	end
 	
