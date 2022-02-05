@@ -294,7 +294,7 @@ module datapath_tb_and;
 			T1 : begin
 				reset_read_write_signals();
 				inc_pc <= 0;  // Stop incrementing PC
-				mdr_read <= 1;  // Write memory to MDR
+				mdr_write <= 1;  // Write memory to MDR
 				mdr_select <= 1;  // Write memory to MDR
 				mem_data <= 32'h4A920000;	// Write memory to MDR
 			end
