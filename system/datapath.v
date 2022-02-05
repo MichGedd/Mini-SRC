@@ -307,7 +307,7 @@ module datapath_tb_and;
 				reset_read_write_signals();
 				regfile_read <= 1;  // Put R2 onto bus
 				regfile_location <= 2;  // Put R2 onto bus
-				y_write = 1;  // Write bus to Y
+				y_write <= 1;  // Write bus to Y
 			end
 			T4 : begin
 				reset_read_write_signals();
