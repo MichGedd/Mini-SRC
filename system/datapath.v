@@ -119,7 +119,7 @@ module datapath(input clk,
 		.out_sum (w_pc_adder_out),
 		.out_carry ());
 	
-	always @(w_bus_select_signals) begin
+	always @(*) begin
 		case (w_bus_select_signals) 
 			9'b000000001: r_bus = w_regfile_out;  // Reg File Out
 			9'b000000010: r_bus = w_HI_out;  // Reg HI
