@@ -1051,6 +1051,7 @@ module datapath_tb_mul; //mul R2, R4
 				z_hi_read <= 1;  // Put Z[31:0] onto bus
 				regfile_write <= 1;  // Write bus to R6 (high bits)
 				regfile_location <= 6;  // Write bus to R6
+			end
 		endcase
 	end
 
@@ -1238,6 +1239,7 @@ module datapath_tb_div; //div R2, R4
 				z_hi_read <= 1;  // Put Z[31:0] onto bus
 				regfile_write <= 1;  // Write bus to R6 (high bits)
 				regfile_location <= 6;  // Write bus to R6
+			end
 		endcase
 	end
 
@@ -1422,7 +1424,7 @@ module datapath_tb_shr; //shr R5, R2, R4
 		endcase
 	end
 
-end module
+endmodule
 
 module datapath_tb_shl; //shl R5, R2, R4
 
