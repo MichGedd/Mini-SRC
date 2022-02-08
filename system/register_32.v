@@ -79,57 +79,6 @@ module register_32_tb;
 			end
 		endcase
 	end
-	
-	/*
-			//set the initial values:
-			clockin = 0;
-			clearin = 0;
-			datain = 'h00000000;
-			writein = 0;
-			
-			#period;
-			
-			//setting out clock cycles
-			clockin = 1;
-			#period;
-			
-			clockin = 0;
-			writein = 1;
-			datain = 'h11111111;
-			#period;
-			
-			clockin = 1;
-			#period;
-			
-			clockin = 0;
-			clearin = 1;
-			#period;
-			
-			clockin = 1;
-			#period;
-			
-			clockin = 0;
-			datain = 'h11110000;
-			writein = 0;
-			#period;
-			
-			clockin = 1;
-			#period;
-			
-			clockin = 0;
-			writein = 1;
-			#period;
-			
-			clockin = 1;
-			#period;
-			
-			clockin = 0;
-			clearin = 0;
-			#period;
-			
-			clockin = 1;
-			#period;
-			*/
 endmodule
 
 

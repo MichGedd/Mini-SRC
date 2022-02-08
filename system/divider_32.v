@@ -82,13 +82,13 @@ module divider_32(input [31:0] in_dividend, input [31:0] in_divisor, output reg 
 			default: out_remainder = 32'b0;
 		endcase
 		
-		case (in_divisor[31])
+		case (in_divisor[31])  // Determine abs val of divisor
 			1'b0: w_pos_divisor = in_divisor;
 			1'b1: w_pos_divisor = w_inv_divisor;
 			default: w_pos_divisor = 32'b0;
 		endcase
 		
-		case (in_dividend[31])
+		case (in_dividend[31])  // Determine abs val of dividend
 			1'b0: w_pos_dividend = in_dividend;
 			1'b1: w_pos_dividend = w_inv_dividend;
 			default w_pos_dividend = 32'b0;
@@ -124,6 +124,7 @@ module divider_32_tb;
 		#(delay) dividend = 32'ha; divisor = 32'hFFFFFFFD;  // 10 div -3. Output should be -3R1
 		#(delay) dividend = 32'hFFFFFE0C; divisor = 32'h3;  // -500 div 3. Output should be -166R2
 		#(delay) dividend = 32'hFFFFFF9C; divisor = 32'hFFFFFFF7;  // -100 div -9. Output should be 11R1
+		#(delay) dividend = 32'd34; divisor = 32'd36;  // 34 div 36. Output should be 0R34
 	end
 
 endmodule
