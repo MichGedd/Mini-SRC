@@ -1043,14 +1043,18 @@ module datapath_tb_mul; //mul R2, R4
 			T5 : begin
 				reset_read_write_signals();
 				z_lo_read <= 1;  // Put Z[31:0] onto bus
-				regfile_write <= 1;  // Write bus to R5(Low bits)
-				regfile_location <= 5;  // Write bus to R5
+				//regfile_write <= 1;  // Write bus to R5(Low bits)
+				//regfile_location <= 5;  // Write bus to R5
+				//write to the LOin
+				lo_write = 1;
 			end
 			T6 : begin
 				reset_read_write_signals();
 				z_hi_read <= 1;  // Put Z[31:0] onto bus
-				regfile_write <= 1;  // Write bus to R6 (high bits)
-				regfile_location <= 6;  // Write bus to R6
+				//regfile_write <= 1;  // Write bus to R6 (high bits)
+				//regfile_location <= 6;  // Write bus to R6
+				//write to the HIin
+				hi_write = 1;
 			end
 		endcase
 	end
@@ -1231,14 +1235,17 @@ module datapath_tb_div; //div R2, R4
 			T5 : begin
 				reset_read_write_signals();
 				z_lo_read <= 1;  // Put Z[31:0] onto bus
-				regfile_write <= 1;  // Write bus to R5(Low bits)
-				regfile_location <= 5;  // Write bus to R5
+				
+				//quotient write to the LOin
+				lo_write = 1;
 			end
 			T6 : begin
 				reset_read_write_signals();
 				z_hi_read <= 1;  // Put Z[31:0] onto bus
-				regfile_write <= 1;  // Write bus to R6 (high bits)
-				regfile_location <= 6;  // Write bus to R6
+				//regfile_write <= 1;  // Write bus to R6 (high bits)
+				//regfile_location <= 6;  // Write bus to R6
+				// remainder write to the HIin
+				hi_write = 1;
 			end
 		endcase
 	end
