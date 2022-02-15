@@ -6,7 +6,7 @@ module system(input clk,
 	input in_gra,
 	input in_grb,
 	input in_grc,
-	input in_ba_write,
+	input in_ba_read,
 	// Read signals
 	input in_regfile_read,
 	input in_hi_read,
@@ -35,10 +35,13 @@ module system(input clk,
 	wire [31:0] w_mdr_data;
 	wire [31:0] w_mem_data;
 	wire [31:0] w_ir_out;
+	wire [31:0] w_bus_out;
 	wire [3:0] w_regfile_location;
 	
 	wire w_regfile_read;
 	wire w_regfile_write;
+	
+	assign out_bus = w_bus_out;
 
 	datapath path (.clk (clk),
 		.in_regfile_location (w_regfile_location),
@@ -65,7 +68,7 @@ module system(input clk,
 		.in_ir_write (in_ir_write),
 		.in_y_write (in_y_write),
 		.in_mar_write (in_mar_write),
-		.out_bus (out_bus),  // Maybe change this later
+		.out_bus (w_bus_out),  // Maybe change this later
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out));
@@ -82,11 +85,16 @@ module system(input clk,
 		.in_grc (in_grc),
 		.in_read (in_regfile_read),
 		.in_write (in_regfile_write),
-		.in_base_addr_write (in_ba_write),
+		.in_base_addr_read (in_ba_read),
 		.in_ir (w_ir_out),
 		.out_regfile_location (w_regfile_location),
 		.out_regfile_read (w_regfile_read),
 		.out_regfile_write (w_regfile_write));
+	
+	con_ff_logic CON_FF(.in_condition (w_ir_out[20:19]),
+		.in_bus (w_bus_out),
+		.in_con_in (),  // Part of Phase 3
+		.out_branch ());  // Part of Phase 3
 
 endmodule
 
@@ -94,7 +102,7 @@ endmodule
 // Note: When compiling these in VSIM, you may need to run vsim <testbench file> -L altera_mf_ver
 
 module system_tb;
-	reg clk, reg_clear, mdr_select, inc_pc, gra, grb, grc, ba_write;
+	reg clk, reg_clear, mdr_select, inc_pc, gra, grb, grc, ba_read;
 	reg regfile_read, hi_read, lo_read, z_hi_read, z_lo_read, pc_read, mdr_read, inport_read, c_read, mem_read;
 	reg regfile_write, hi_write, lo_write, z_write, pc_write, mdr_write, ir_write, y_write, mar_write, mem_write;
 	reg [3:0] alu_opcode;
@@ -110,7 +118,7 @@ module system_tb;
 		.in_gra (gra),
 		.in_grb (grb),
 		.in_grc (grc),
-		.in_ba_write (ba_write),
+		.in_ba_read (ba_read),
 		.in_hi_read (hi_read),
 		.in_lo_read (lo_read),
 		.in_z_hi_read (z_hi_read),
@@ -183,7 +191,7 @@ module system_tb;
 		gra = 0;
 		grb = 0;
 		grc = 0;
-		ba_write = 0;
+		ba_read = 0;
 		end
 	endtask
 	
@@ -217,9 +225,21 @@ module system_tb;
 			end
 			T3 : begin
 				reset_read_write_signals();
-				grb <= 1;
-				ba_write <= 1;
+				grb <= 1;  // Set the regfile location RB
+				ba_read <= 1;  // Set write signal to true
 				y_write <= 1;
+			end
+			T4 : begin
+				reset_read_write_signals();
+				c_read <= 1;  // Put C on bus
+				alu_opcode <= 4'b0000;  // ADD 
+				z_write <= 1;  // Save Z
+			end
+			T5 : begin
+				reset_read_write_signals();
+				gra <= 1;
+				z_lo_read <= 1;
+				regfile_write <= 1;
 			end
 		endcase
 	end
