@@ -42,6 +42,7 @@ module datapath(input clk,
 	wire [31:0] w_HI_out;
 	wire [31:0] w_LO_out;
 	wire [31:0] w_MDR_out;
+	wire [31:0] w_c_sign_extend;
 	
 	wire [63:0] w_alu_out;
 	
@@ -50,6 +51,7 @@ module datapath(input clk,
 	wire [8:0] w_bus_select_signals; // Make sure to asign your reg out signals
 	
 	assign w_bus_select_signals = {in_c_read, in_inport_read, in_mdr_read, in_pc_read, in_z_lo_read, in_z_hi_read, in_lo_read, in_hi_read, in_regfile_read};
+	assign w_c_sign_extend = {{14{w_IR_out[18]}}, w_IR_out[17:0]};
 	assign out_bus = r_bus;
 	assign out_mar = w_mar_out;
 	assign out_mdr = w_MDR_out;
@@ -135,7 +137,7 @@ module datapath(input clk,
 			9'b000100000: r_bus = w_PC_out;  // Reg PC
 			9'b001000000: r_bus = w_MDR_out;  // Reg MDR
 			9'b010000000: r_bus = 32'b0;  // Reg InPort
-			9'b100000000: r_bus = 32'b0;  // C_sign extend
+			9'b100000000: r_bus = w_c_sign_extend;  // C_sign extend
 			default: r_bus = 32'hx;
 		endcase
 	end
