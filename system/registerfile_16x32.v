@@ -98,10 +98,6 @@ module registerfile_16x32 (
 	
 	assign out_Adata = r_data_out;
 	
-	
-	
-	
-
 endmodule
 
 //---------------------------------------
