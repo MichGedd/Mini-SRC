@@ -21,6 +21,6 @@ ADDRESS_RADIX=UNS;
 DATA_RADIX=UNS;
 
 CONTENT BEGIN
-	0    :   150;
+	0    :   50954240;
 	[1..511]  :   0;
 END;

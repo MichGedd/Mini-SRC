@@ -27,7 +27,8 @@ module datapath(input clk,
 	input in_mar_write,
 	output [31:0] out_bus,
 	output [31:0] out_mdr,
-	output [31:0] out_mar);
+	output [31:0] out_mar,
+	output [31:0] out_ir);
 
 	reg [31:0] r_bus;  // This is the bus
 	reg [31:0] w_pc_in;  // Input to PC
@@ -52,6 +53,7 @@ module datapath(input clk,
 	assign out_bus = r_bus;
 	assign out_mar = w_mar_out;
 	assign out_mdr = w_MDR_out;
+	assign out_ir = w_IR_out;
 	
 	registerfile_16x32 regfile( .in_Cdata (r_bus),
 		.in_Cselect (in_regfile_location),
