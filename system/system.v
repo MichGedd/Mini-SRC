@@ -74,7 +74,7 @@ module system(input clk,
 		.out_ir (w_ir_out));
 	
 	memory RAM (.clock (clk),
-		.address (w_mem_address),
+		.address (w_mem_address[8:0]),
 		.data (w_mdr_data),
 		.rden (in_mem_read),
 		.wren (in_mem_write),
@@ -142,6 +142,8 @@ module system_tb;
 	
 	// Set up clock
 	initial begin
+		//Do this to instantiate the value in a register -> DUT.path.Y.value_32 = 32'b1;
+		//Do this to acccess a specific register in the regfile (This is reg 0) -> DUT.path.regfile.gen_registers[0].register_inst.value_32 = 32'b1;
 		clk = 0;
 		forever #10 clk = ~clk;
 	end
@@ -233,13 +235,13 @@ module system_tb;
 				reset_read_write_signals();
 				c_read <= 1;  // Put C on bus
 				alu_opcode <= 4'b0000;  // ADD 
-				z_write <= 1;  // Save Z
+				z_write <= 1;  // Put ALU output in Z
 			end
 			T5 : begin
 				reset_read_write_signals();
-				gra <= 1;
-				z_lo_read <= 1;
-				regfile_write <= 1;
+				gra <= 1;  // Set regfile location RA
+				z_lo_read <= 1;  // Read bottom 32 of Z to bus
+				regfile_write <= 1;  // Write bus to RA
 			end
 		endcase
 	end
