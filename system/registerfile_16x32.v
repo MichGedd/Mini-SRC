@@ -58,7 +58,7 @@ module registerfile_16x32 (
 	always @ (*) begin
 		case (in_Aselect)
 			16'b0000:
-				r_data_out = w_reg_out[0];
+				r_data_out = 'h00000000;
 			16'b0001:
 				r_data_out = w_reg_out[1];
 			16'b0010:
