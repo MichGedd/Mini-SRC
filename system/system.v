@@ -919,11 +919,11 @@ module system_tb_st_case1;
 			end
 			T6 : begin
 				reset_read_write_signals();
-				gra <= 1;
-				regfile_read <= 1;
-				mdr_write <= 1;
-				mdr_select <= 0;
-				mem_write <= 1;
+				gra <= 1;  // Write Ra to bus
+				regfile_read <= 1;  // Write Ra to bus
+				mdr_write <= 1;  // Write bus to MDR
+				mdr_select <= 0;  // Write bus to MDR
+				mem_write <= 1;  // Write to memory
 			end
 		endcase
 	end
