@@ -38,13 +38,13 @@ module datapath(input clk,
 
 	reg [31:0] r_bus;  // This is the bus
 	reg [31:0] w_pc_in;  // Input to PC
+	reg [31:0] r_mar_out;
 	
 	wire [31:0] w_regfile_out;
 	wire [31:0] w_PC_out;
 	wire [31:0] w_IR_out;
 	wire [31:0] w_Y_out;
 	wire [63:0] w_Z_out;
-	wire [31:0] w_mar_out;
 	wire [31:0] w_HI_out;
 	wire [31:0] w_LO_out;
 	wire [31:0] w_MDR_out;
@@ -61,7 +61,7 @@ module datapath(input clk,
 	assign w_bus_select_signals = {in_c_read, in_inport_read, in_mdr_read, in_pc_read, in_z_lo_read, in_z_hi_read, in_lo_read, in_hi_read, in_regfile_read};
 	assign w_c_sign_extend = {{14{w_IR_out[18]}}, w_IR_out[17:0]};
 	assign out_bus = r_bus;
-	assign out_mar = w_mar_out;
+	assign out_mar = r_mar_out;
 	assign out_mdr = w_MDR_out;
 	assign out_ir = w_IR_out;
 	
@@ -113,15 +113,7 @@ module datapath(input clk,
 		.clk (clk),
 		.clr (in_reg_clear),
 		.write (in_z_write));
-	
-	/*register_32 MAR (.D (r_bus),
-		.Q (w_mar_out),
-		.clk (clk),
-		.clr (in_reg_clear),
-		.write (in_mar_write));*/
-	
-	assign w_mar_out = r_bus;
-	
+		
 	register_32 HI (.D (r_bus),
 		.Q (w_HI_out),
 		.clk (clk),
@@ -166,6 +158,10 @@ module datapath(input clk,
 			9'b100000000: r_bus = w_c_sign_extend;  // C_sign extend
 			default: r_bus = 32'hx;
 		endcase
+		
+		if(in_mar_write) begin
+			r_mar_out = r_bus;
+		end
 	end
 	
 	always @(*) begin
