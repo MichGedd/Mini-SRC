@@ -5,6 +5,8 @@ module datapath(input clk,
 	input in_reg_clear,  // Clear all registers
 	input in_mdr_select, // This selects whether to read from bus or memory. 0 for bus, 1 for memory
 	input in_inc_pc,
+	input in_BAout,
+	input [31:0] in_inport_data,
 	// Read signals
 	input in_regfile_read,
 	input in_hi_read,
@@ -25,10 +27,14 @@ module datapath(input clk,
 	input in_ir_write,
 	input in_y_write,
 	input in_mar_write,
+	input in_outport_write,
 	output [31:0] out_bus,
 	output [31:0] out_mdr,
 	output [31:0] out_mar,
-	output [31:0] out_ir);
+	output [31:0] out_ir,
+	output [31:0] out_outport
+	
+	);
 
 	reg [31:0] r_bus;  // This is the bus
 	reg [31:0] w_pc_in;  // Input to PC
@@ -43,6 +49,8 @@ module datapath(input clk,
 	wire [31:0] w_LO_out;
 	wire [31:0] w_MDR_out;
 	wire [31:0] w_c_sign_extend;
+	
+	wire [31:0] w_inport_out;
 	
 	wire [63:0] w_alu_out;
 	
@@ -64,7 +72,27 @@ module datapath(input clk,
 		.in_clr (in_reg_clear),  
 		.in_write (in_regfile_write),
 		.in_read (in_regfile_read),
-		.in_clk (clk));
+		.in_clk (clk),
+		.in_BAout (in_BAout)
+	);
+	
+	register_32 OutPort (
+		.D (r_bus),
+		.Q (out_outport),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (in_outport_write)
+		
+	);
+	
+	register_32 InPort (
+		.D (in_inport_data),
+		.Q (w_inport_out),
+		.clk (clk),
+		.clr (in_reg_clear),
+		.write (1'b1)
+		
+	);
 		
 	register_32 PC (.D (w_pc_in),  // We are going to have to add our own adder for PC
 		.Q (w_PC_out),
@@ -136,7 +164,7 @@ module datapath(input clk,
 			9'b000010000: r_bus = w_Z_out[31:0];  // Reg Z LO
 			9'b000100000: r_bus = w_PC_out;  // Reg PC
 			9'b001000000: r_bus = w_MDR_out;  // Reg MDR
-			9'b010000000: r_bus = 32'b0;  // Reg InPort
+			9'b010000000: r_bus = w_inport_out;  // Reg InPort
 			9'b100000000: r_bus = w_c_sign_extend;  // C_sign extend
 			default: r_bus = 32'hx;
 		endcase

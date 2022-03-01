@@ -29,7 +29,12 @@ module system(input clk,
 	input in_y_write,
 	input in_mar_write,
 	input in_mem_write,
-	output [31:0] out_bus);  // Maybe remove this later
+	input in_outport_write,
+	input [31:0] in_inport_data,
+	output [31:0] out_bus,
+	output [31:0] out_outport
+	
+	);  // Maybe remove this later
 
 	wire [31:0] w_mem_address;
 	wire [31:0] w_mdr_data;
@@ -68,10 +73,16 @@ module system(input clk,
 		.in_ir_write (in_ir_write),
 		.in_y_write (in_y_write),
 		.in_mar_write (in_mar_write),
+		.in_BAout (in_ba_read),
+		.in_outport_write (in_outport_write),
+		.in_inport_data (in_inport_data),
 		.out_bus (w_bus_out),  // Maybe change this later
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
-		.out_ir (w_ir_out));
+		.out_ir (w_ir_out),
+		.out_outport(out_outport)
+		
+	);
 	
 	memory RAM (.clock (clk),
 		.address (w_mem_address[8:0]),
@@ -107,6 +118,10 @@ module system_tb;
 	reg regfile_write, hi_write, lo_write, z_write, pc_write, mdr_write, ir_write, y_write, mar_write, mem_write;
 	reg [3:0] alu_opcode;
 	
+	reg [31:0] inport_data;
+	reg outport_write;
+	
+	wire[31:0] outport;
 	wire[31:0] bus;
 	
 	system DUT (.clk (clk),
@@ -138,7 +153,11 @@ module system_tb;
 		.in_y_write (y_write),
 		.in_mar_write (mar_write),
 		.in_mem_write (mem_write),
-		.out_bus (bus));
+		.out_bus (bus),
+		.in_outport_write (outport_write),
+		.in_inport_data (inport_data),
+		.out_outport(outport)
+		);
 	
 	// Set up clock
 	initial begin
