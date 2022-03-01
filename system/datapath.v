@@ -81,18 +81,14 @@ module datapath(input clk,
 		.Q (out_outport),
 		.clk (clk),
 		.clr (in_reg_clear),
-		.write (in_outport_write)
-		
-	);
+		.write (in_outport_write));
 	
 	register_32 InPort (
 		.D (in_inport_data),
 		.Q (w_inport_out),
 		.clk (clk),
 		.clr (in_reg_clear),
-		.write (1'b1)
-		
-	);
+		.write (1'b1));
 		
 	register_32 PC (.D (w_pc_in),  // We are going to have to add our own adder for PC
 		.Q (w_PC_out),
@@ -118,11 +114,13 @@ module datapath(input clk,
 		.clr (in_reg_clear),
 		.write (in_z_write));
 	
-	register_32 MAR (.D (r_bus),
+	/*register_32 MAR (.D (r_bus),
 		.Q (w_mar_out),
 		.clk (clk),
 		.clr (in_reg_clear),
-		.write (in_mar_write));
+		.write (in_mar_write));*/
+	
+	assign w_mar_out = r_bus;
 	
 	register_32 HI (.D (r_bus),
 		.Q (w_HI_out),

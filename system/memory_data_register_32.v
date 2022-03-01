@@ -2,11 +2,13 @@ module memory_data_register_32 (input [31:0] in_bus, input [31:0] in_memory, inp
 
 	reg [31:0] r_mem_data_mux;
 
-	register_32 mdr_reg(.D (r_mem_data_mux),
+	/*register_32 mdr_reg(.D (r_mem_data_mux),
 		.Q (out),
 		.clr (in_clr),
 		.clk (in_clk),
-		.write (in_write));
+		.write (in_write));*/
+	
+	assign out = r_mem_data_mux;
 
 	always@(*) begin
 		case(in_read)

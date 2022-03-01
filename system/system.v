@@ -80,9 +80,7 @@ module system(input clk,
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
-		.out_outport(out_outport)
-		
-	);
+		.out_outport(out_outport));
 	
 	memory RAM (.clock (clk),
 		.address (w_mem_address[8:0]),
@@ -267,7 +265,7 @@ module system_tb;
 endmodule
 
 module system_tb_ld_case1;
-	// Set M[0] to 00000aaaa0000xxxx000000001010101 where aaaa is the register address to load to
+	// Set M[0] to 0000000010000000000001010101
 	// Set M{85] to some 32 bit value
 	
 	reg clk, reg_clear, mdr_select, inc_pc, gra, grb, grc, ba_read;
@@ -418,12 +416,12 @@ module system_tb_ld_case1;
 				reset_read_write_signals();
 				z_lo_read <= 1;  // Read bottom 32 of Z to bus
 				mar_write <= 1;  // Set MAR to bus
+				mem_read <= 1;  // Prepare to read from memory
 			end
 			T6 : begin
 				reset_read_write_signals();
 				mdr_write <= 1;
 				mdr_select <= 1;
-				mem_read <= 1;
 			end
 			T7 : begin
 				reset_read_write_signals();
