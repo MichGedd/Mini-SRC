@@ -9,7 +9,8 @@ module registerfile_16x32 (
 	input in_clr, //clears the entire register file
 	input in_write, //stores the Cdata in the Cselect location
 	input in_read, //retrieves the Adata from Aselect location.
-	input in_clk //clock in
+	input in_clk, //clock in
+	input in_BAout //base address in signal
 );
 
 
@@ -58,7 +59,7 @@ module registerfile_16x32 (
 	always @ (*) begin
 		case (in_Aselect)
 			16'b0000:
-				r_data_out = w_reg_out[0];
+				r_data_out = w_reg_out[0]&(~in_BAout);
 			16'b0001:
 				r_data_out = w_reg_out[1];
 			16'b0010:
