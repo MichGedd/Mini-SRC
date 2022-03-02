@@ -32,9 +32,7 @@ module datapath(input clk,
 	output [31:0] out_mdr,
 	output [31:0] out_mar,
 	output [31:0] out_ir,
-	output [31:0] out_outport
-	
-	);
+	output [31:0] out_outport);
 
 	reg [31:0] r_bus;  // This is the bus
 	reg [31:0] w_pc_in;  // Input to PC
@@ -158,10 +156,6 @@ module datapath(input clk,
 			9'b100000000: r_bus = w_c_sign_extend;  // C_sign extend
 			default: r_bus = 32'hx;
 		endcase
-		
-		if(in_mar_write) begin
-			r_mar_out = r_bus;
-		end
 	end
 	
 	always @(*) begin
@@ -169,6 +163,10 @@ module datapath(input clk,
 			w_pc_in <= w_pc_adder_out;
 		end else begin
 			w_pc_in <= r_bus;
+		end
+		
+		if(in_mar_write) begin
+			r_mar_out = r_bus;
 		end
 	end
 	
