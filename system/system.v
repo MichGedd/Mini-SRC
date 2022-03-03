@@ -152,3 +152,35 @@ endmodule
 
 //---------------------------
 // Note: When compiling these in VSIM, you may need to run vsim <testbench file> -L altera_mf_ver
+
+module system_tb;
+
+	reg clk, reset, stop;
+	reg [31:0] inport_data;
+	
+	wire run;
+	wire [31:0] outport_data;
+	
+	system DUT (.clk (clk),
+		.reset (reset),
+		.stop (stop),
+		.inport_data (inport_data),
+		.run (run),
+		.outport_data (outport_data));
+	
+	initial begin
+		clk = 0;
+		reset = 1;
+		stop = 0;
+		inport_data = 32'b0;
+		forever begin 
+			#10 clk = ~clk;
+		end
+	end
+	
+	always @(clk) begin
+		reset = 0;
+	end
+	
+endmodule
+
