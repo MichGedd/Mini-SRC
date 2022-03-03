@@ -49,13 +49,12 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 	multiplier_32 multiplier (.in_x (in_a),
 		.in_y (in_b),
 		.out_product (w_multi_product_out));
-	
-/*	
-	divider_32 divider (.in_dividend (in_a),
+		
+	/*divider_32 divider (.in_dividend (in_a),
 		.in_divisor (in_b),
 		.out_quotient (w_div_out[31:0]),
-		.out_remainder (w_div_out[63:32]));
-	*/
+		.out_remainder (w_div_out[63:32]));*/
+
 	always @(*) begin
 		case(in_opcode)  // Pre-process step before addition/not
 			4'b1010,

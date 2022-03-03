@@ -2,7 +2,7 @@ module control_unit (input clk,
 	input in_reset,
 	input in_stop,
 	input [31:0] in_ir,
-	input in_con_ff,
+	input in_branch,
 	output reg out_run, // If the machine is running
 	output reg out_clear,  // Global register clear
 	// Select Encode Signals
@@ -74,6 +74,8 @@ module control_unit (input clk,
 	always @(posedge clk, posedge in_reset) begin
 		if (in_reset) begin
 			state = reset;
+		end else if (in_stop) begin
+			state = halt3;
 		end else begin
 			case(state)
 				reset : state = fetch0;
@@ -363,6 +365,40 @@ module control_unit (input clk,
 				out_gra <= 1;
 				out_regfile_write <= 1;
 			end
+			store3 : begin
+				out_mdr_read <= 0;
+				out_ir_write <= 0;
+				
+				out_grb <= 1;
+				out_ba_read <= 1;
+				out_y_write <= 1;
+			end
+			store4 : begin
+				out_grb <= 0;
+				out_ba_read <= 0;
+				out_y_write <= 0;
+				
+				out_c_read <= 1;
+				out_alu_opcode <= 4'b0000;
+				out_z_write <= 1;
+			end
+			store5 : begin
+				out_c_read <= 0;
+				out_z_write <= 0;
+				
+				out_z_lo_read <= 1;
+				out_mar_write <= 1;
+			end
+			store6 : begin
+				out_z_lo_read <= 0;
+				out_mar_write <= 0;
+				
+				out_gra <= 1;
+				out_regfile_read <= 1;
+				out_mdr_write <= 1;
+				out_mdr_select <= 0;
+				out_mem_write <= 1;
+			end
 			add3, sub3, shr3, shl3, ror3, rol3, and3, or3 : begin
 				out_mdr_read <= 0;
 				out_ir_write <= 0;
@@ -485,6 +521,37 @@ module control_unit (input clk,
 				out_gra <= 1;
 				out_regfile_write <= 1;
 			end
+			branch3 : begin
+				out_mdr_read <= 0;
+				out_ir_write <= 0;
+				
+				out_gra <= 1;
+				out_regfile_read <= 1;
+				out_conff_write <= 1;
+			end
+			branch4 : begin
+				out_gra <= 0;
+				out_regfile_read <= 0;
+				out_conff_write <= 0;
+				
+				out_pc_read <= 1;
+				out_y_write <= 1;
+			end
+			branch5 : begin
+				out_pc_read <= 0;
+				out_y_write <= 0;
+				
+				out_c_read <= 1;
+				out_alu_opcode <= 4'b0000;
+				out_z_write <= 1;
+			end
+			branch6 : begin
+				out_c_read <= 0;
+				out_z_write <= 0;
+				
+				out_z_lo_read <= 1;
+				out_pc_write <= in_branch;
+			end
 			jr3 : begin
 				out_mdr_read <= 0;
 				out_ir_write <= 0;
@@ -543,10 +610,7 @@ module control_unit (input clk,
 				out_ir_write <= 0;
 			end
 			halt3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
-				
-				out_run <= 1;
+				out_run <= 0;
 			end
 		endcase
 	end
