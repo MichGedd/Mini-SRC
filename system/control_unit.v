@@ -69,49 +69,54 @@ module control_unit (input clk,
 	nop3 = 32'd70,
 	halt3 = 32'd71,
 	addi3 = 32'd72, addi4 = 32'd73, addi5 = 32'd74; 
+	
 	reg [31:0] state = reset;
+	reg fetch_buffer = 0;
 	
 	always @(posedge clk, posedge in_reset) begin
 		if (in_reset) begin
 			state = reset;
 		end else if (in_stop) begin
 			state = halt3;
-		end else begin
+		end else if (fetch_buffer) begin
+			case(in_ir[31:27])
+				5'b00000 : state = load3; // Load
+				5'b00001 : state = loadi3; // Load Immediate
+				5'b00010 : state = store3; // Store
+				5'b00011 : state = add3; // Add
+				5'b00100 : state = sub3; // Sub
+				5'b00101 : state = shr3; // Shift Right
+				5'b00110 : state = shl3; // Shift Left
+				5'b00111 : state = ror3; // Rotate Right
+				5'b01000 : state = rol3; // Rotate Left
+				5'b01001 : state = and3; // And
+				5'b01010 : state = or3; // Or
+				5'b01011 : state = addi3; // Add Immediate
+				5'b01100 : state = andi3; // And Immediate
+				5'b01101 : state = ori3; // Or Immediate
+				5'b01110 : state = mul3; // Multiply
+				5'b01111 : state = div3; // Divide
+				5'b10000 : state = neg3; // Negate
+				5'b10001 : state = not3; // Not
+				5'b10010 : state = branch3; // Branch
+				5'b10011 : state = jr3; // Jump Return
+				5'b10100 : state = jal3; // Jump Link
+				5'b10101 : state = in3; // Input
+				5'b10110 : state = out3; // Output
+				5'b10111 : state = mfhi3; // Move from HI
+				5'b11000 : state = mflo3; // Move from LO
+				5'b11001 : state = nop3; // NOP
+				5'b11010 : state = halt3; // Halt
+			endcase
+			
+			fetch_buffer = 0;
+		end
+		else begin
 			case(state)
 				reset : state = fetch0;
 				fetch0 : state = fetch1;
 				fetch1 : state = fetch2;
-				fetch2 : begin
-					case(in_ir[31:27])
-						5'b00000 : state = load3; // Load
-						5'b00001 : state = loadi3; // Load Immediate
-						5'b00010 : state = store3; // Store
-						5'b00011 : state = add3; // Add
-						5'b00100 : state = sub3; // Sub
-						5'b00101 : state = shr3; // Shift Right
-						5'b00110 : state = shl3; // Shift Left
-						5'b00111 : state = ror3; // Rotate Right
-						5'b01000 : state = rol3; // Rotate Left
-						5'b01001 : state = and3; // And
-						5'b01010 : state = or3; // Or
-						5'b01011 : state = addi3; // Add Immediate
-						5'b01100 : state = andi3; // And Immediate
-						5'b01101 : state = ori3; // Or Immediate
-						5'b01110 : state = mul3; // Multiply
-						5'b01111 : state = div3; // Divide
-						5'b10000 : state = neg3; // Negate
-						5'b10001 : state = not3; // Not
-						5'b10010 : state = branch3; // Branch
-						5'b10011 : state = jr3; // Jump Return
-						5'b10100 : state = jal3; // Jump Link
-						5'b10101 : state = in3; // Input
-						5'b10110 : state = out3; // Output
-						5'b10111 : state = mfhi3; // Move from HI
-						5'b11000 : state = mflo3; // Move from LO
-						5'b11001 : state = nop3; // NOP
-						5'b11010 : state = halt3; // Halt
-					endcase
-				end
+				fetch2 : fetch_buffer = 1;
 				load3 : state = load4;
 				load4 : state = load5;
 				load5 : state = load6;
