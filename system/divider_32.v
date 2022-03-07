@@ -2,23 +2,17 @@ module divider_32(input clk,
 	input in_reset,
 	input [31:0] in_dividend,
 	input [31:0] in_divisor,
-	output [31:0] out_quotient,
+	output reg [31:0] out_quotient,
 	output [31:0] out_remainder);
-
-	// We have been hoodwinked, bamboozled, led astray, run amuck, and flat out decieved by the ELEC 374 lecture slides.
-	// Lecture Slides: Array Divisors are super fast y'all
-	// Our Array Divisor: UwU 4.01 MHz max clock pweez 
-	//----------------------------------------------------------------------
-	// In all seriousness we really need to reduce the ammount of logic here.
-	// Biggest issue is probably the fact that the carry/mode gets propogated between rows and
-	// has 32^2 full adders to pass through until we get to the bottom.....
 	
-	// Update: Switching from RCA to two cla_16 in ripple managed to increase clock speed from 4.01 MHz to 6.0 MHz, a 50% speed up. Maybe see if we can use booth's to reduce to 16 layers rather than 32?
+	// Division takes 34 cycles. Cycle 0 -> Reset. Cycle 33 -> Answer
 	
 	reg [31:0] w_pos_divisor;
 	reg [31:0] w_pos_dividend;
 	wire [31:0] w_inv_divisor;
 	wire [31:0] w_inv_dividend;
+	wire [31:0] w_neg_quotient;
+	wire [31:0] w_pos_quotient;
 		
 	// Adders to normalize divisor/dividend/quotient to positive
 	adder_32 invert_dividend (.in_x (~in_dividend),
@@ -32,15 +26,21 @@ module divider_32(input clk,
 		.in_carry (1'b1),
 		.out_sum (w_inv_divisor),
 		.out_carry ());
+	
+	adder_32 invert_quotient(.in_x (~w_pos_quotient),
+		.in_y (32'b0),
+		.in_carry (1'b1),
+		.out_sum (w_neg_quotient),
+		.out_carry ());
 		
 	reg [31:0] r_a;
 	reg [31:0] r_m;
 	reg [31:0] r_q;
 	reg [63:0] r_shift;
-	
-	assign out_quotient = r_q;
+		
 	assign out_remainder = r_a;
-
+	assign w_pos_quotient = r_q;
+	
 	//------------------------------------------------
 
 	
@@ -76,6 +76,13 @@ module divider_32(input clk,
 		end else begin
 			w_pos_dividend = w_inv_dividend;
 		end
+		
+		if(in_divisor[31] ^ in_dividend[31]) begin
+			out_quotient = w_neg_quotient;
+		end else begin
+			out_quotient = w_pos_quotient;
+		end
+		
 	end
 
 endmodule
@@ -134,7 +141,7 @@ module divider_32_tb;
 	always @(posedge clk) begin
 		count = count + 1;
 		reset = 0;
-		if (count == 32) begin
+		if (count == 34) begin
 			count = 0;
 			state = state + 1;
 			reset = 1;
