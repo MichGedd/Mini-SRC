@@ -19,7 +19,7 @@ module multiplier_32 (input [31:0] in_x, input [31:0] in_y, output [63:0] out_pr
 				.in_bit_pair (w_padded_multiplicand[(i*2)+2:(i*2)]),
 				.out_recode (w_partial_products[i]));
 				
-			assign w_partial_products_shift[i] = {w_partial_products[i][63-(2*i):0], {(2*i){1'b0}}};
+			assign w_partial_products_shift[i] = {w_partial_products[i][63-(2*i):0], {(2*i){1'b0}}};  // Quartus is complaining that this is replecating by 0. Should probably have an if-statemment of something
 		end
 				
 		for(i = 0; i < 4; i = i + 1) begin : gen_reduce_16_to_8

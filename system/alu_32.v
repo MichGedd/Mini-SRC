@@ -27,15 +27,15 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 	
 	reg [31:0] r_a_pre_process;
 	reg [31:0] r_b_pre_process;
-	reg [31:0] r_a_inverted;
+	reg [31:0] r_b_inverted;
 	reg r_adder_carry_in;
 	
-	assign w_and_32 = in_a & in_b;
-	assign w_or_32 = in_a | in_b;
-	assign w_not_32 = ~r_a_pre_process;
+	assign w_and_32 = in_a && in_b;
+	assign w_or_32 = in_a || in_b;
+	assign w_not_32 = ~r_b_pre_process;
 	
-	adder_32 adder(.in_x (r_a_inverted),
-		.in_y (r_b_pre_process),
+	adder_32 adder(.in_x (r_a_pre_process),
+		.in_y (r_b_inverted),
 		.in_carry (r_adder_carry_in),
 		.out_sum (w_adder_sum_out),
 		.out_carry (w_adder_carry_out));
@@ -50,21 +50,17 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 		.in_y (in_b),
 		.out_product (w_multi_product_out));
 		
-	divider_32 divider (.in_dividend (in_a),
+	/*divider_32 divider (.in_dividend (in_a),
 		.in_divisor (in_b),
 		.out_quotient (w_div_out[31:0]),
-		.out_remainder (w_div_out[63:32]));
-	
+		.out_remainder (w_div_out[63:32]));*/
+
 	always @(*) begin
 		case(in_opcode)  // Pre-process step before addition/not
 			4'b1010,
 			4'b1011 : begin
-				r_b_pre_process = 0;  // If op code is NOT or INV set b to 0
-				r_a_pre_process = in_a;
-			end
-			4'b0001 : begin  // If op code is SUB swap A and B
-				r_a_pre_process = in_b;
-				r_b_pre_process = in_a;
+				r_b_pre_process = in_b;  // If op code is NOT or INV set b to 0
+				r_a_pre_process = 0;
 			end
 			default : begin  // Default is pass values through
 				r_a_pre_process = in_a;
@@ -72,11 +68,11 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 			end
 		endcase
 		
-		case(in_opcode)  // Whether to invert A
-			4'b0001,  // If op code is SUB, NOT, or INV, do a bitwise NOT to a
+		case(in_opcode)  // Whether to invert B
+			4'b0001,  // If op code is SUB, NOT, or INV, do a bitwise NOT to b
 			4'b1010,
-			4'b1011 : r_a_inverted = w_not_32;
-			default : r_a_inverted = r_a_pre_process;  // Default is pass through values
+			4'b1011 : r_b_inverted = w_not_32;
+			default : r_b_inverted = r_b_pre_process;  // Default is pass through values
 		endcase
 		
 		case(in_opcode)  // Determine Adder Carry in
@@ -122,7 +118,7 @@ module alu_32_tb;
 		in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
 		#(delay) in_a = 32'hF0F0F0F0; in_b = 32'hABCDABCD; opcode = 4'b1011; // NOT
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
-		#(delay) in_a = 32'h00000001; in_b = 32'hFFFFFFFF; opcode = 4'b1010; // NEG
+		#(delay) in_a = 32'h00000001; in_b = 32'h1; opcode = 4'b1010; // NEG
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
 		#(delay) in_a = 32'hFFFFFFFF; in_b = 32'h0F0F0F0F; opcode = 4'b0110;  // AND
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
@@ -134,7 +130,7 @@ module alu_32_tb;
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
 		#(delay) in_a = 32'hFFFFFFF3; in_b = 32'hB; opcode = 4'b1000;  // MUL
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
-		#(delay) in_a = 32'ha; in_b = 32'hFFFFFFFD; opcode = 4'b1001;  // DIV
+		#(delay) in_a = 32'd34; in_b = 32'd36; opcode = 4'b1001;  // DIV
 	end
 	
 endmodule
