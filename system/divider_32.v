@@ -90,25 +90,6 @@ endmodule
 //------------------------------
 
 module divider_32_tb;
-
-	/*reg [31:0] dividend, divisor;
-	wire [31:0] quotient, remainder;
-	
-	parameter delay = 10;
-	
-	divider_32 DUT (.in_dividend (dividend),
-		.in_divisor (divisor),
-		.out_quotient (quotient),
-		.out_remainder (remainder));
-		
-	initial begin
-		//dividend = 32'b1100111; divisor = 32'b0111;
-		dividend = 32'ha; divisor = 32'h1;  // 10 div 1;  Output should be 10R0
-		#(delay) dividend = 32'h1e; divisor = 32'h4;  // 30 div 4; Output should be 7R2 
-		#(delay) dividend = 32'ha; divisor = 32'hFFFFFFFD;  // 10 div -3. Output should be -3R1
-		#(delay) dividend = 32'hFFFFFE0C; divisor = 32'h3;  // -500 div 3. Output should be -166R2
-		#(delay) dividend = 32'hFFFFFF9C; divisor = 32'hFFFFFFF7;  // -100 div -9. Output should be 11R1
-	end*/
 	
 	reg [31:0] dividend, divisor;
 	reg reset;

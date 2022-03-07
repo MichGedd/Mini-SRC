@@ -1,4 +1,4 @@
-module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, output reg [63:0] out_result);
+module alu_32(input clk, input in_div_reset, input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, output reg [63:0] out_result);
 
 	// ALU opcodes
 	/*
@@ -50,10 +50,12 @@ module alu_32(input [31:0] in_a, input [31:0] in_b, input [3:0] in_opcode, outpu
 		.in_y (in_b),
 		.out_product (w_multi_product_out));
 		
-	/*divider_32 divider (.in_dividend (in_a),
+	divider_32 divider (.clk (clk),
+		.in_reset (in_div_reset),
+		.in_dividend (in_a),
 		.in_divisor (in_b),
 		.out_quotient (w_div_out[31:0]),
-		.out_remainder (w_div_out[63:32]));*/
+		.out_remainder (w_div_out[63:32]));
 
 	always @(*) begin
 		case(in_opcode)  // Pre-process step before addition/not
@@ -129,8 +131,8 @@ module alu_32_tb;
 		#(delay) in_a = 32'h0000FFFF; in_b = 32'h000000FF; opcode = 4'b0001;  // SUB
 		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
 		#(delay) in_a = 32'hFFFFFFF3; in_b = 32'hB; opcode = 4'b1000;  // MUL
-		#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
-		#(delay) in_a = 32'd34; in_b = 32'd36; opcode = 4'b1001;  // DIV
+		//#(delay) in_a = 32'h0; in_b = 32'h0; opcode = 4'b0;
+		//#(delay) in_a = 32'd34; in_b = 32'd36; opcode = 4'b1001;  // DIV
 	end
 	
 endmodule

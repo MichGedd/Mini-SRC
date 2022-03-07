@@ -47,6 +47,7 @@ module system(input clk,
 	wire w_mem_read;
 	
 	wire [3:0] w_alu_opcode;
+	wire w_div_reset;
 	wire w_mdr_select;
 	wire w_inc_pc;
 	wire w_clr;
@@ -60,6 +61,7 @@ module system(input clk,
 		.in_reg_clear (w_clr),
 		.in_inc_pc (w_inc_pc),
 		.in_mdr_select (w_mdr_select),
+		.in_div_reset (w_div_reset),  // TODO
 		.in_regfile_read (w_selenc_regfile_read),
 		.in_hi_read (w_hi_read),
 		.in_lo_read (w_lo_read),
@@ -81,7 +83,7 @@ module system(input clk,
 		.in_BAout (w_ba_read),
 		.in_outport_write (w_outport_write),
 		.in_inport_data (inport_data),
-		.out_bus (w_bus_out),  // Maybe change this later
+		.out_bus (w_bus_out),
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
@@ -145,6 +147,7 @@ module system(input clk,
 		.out_c_read (w_c_read),
 		.out_mem_read (w_mem_read),
 		.out_alu_opcode (w_alu_opcode),
+		.out_div_reset (w_div_reset),
 		.out_mdr_select (w_mdr_select),
 		.out_inc_pc (w_inc_pc));
 
