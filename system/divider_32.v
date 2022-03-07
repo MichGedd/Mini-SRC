@@ -1,4 +1,9 @@
-module divider_32(input clk, input [31:0] in_dividend, input [31:0] in_divisor, output reg [31:0] out_quotient, output reg [31:0] out_remainder);
+module divider_32(input clk, 
+	input in_reset,
+	input [31:0] in_dividend,
+	input [31:0] in_divisor,
+	output [31:0] out_quotient,
+	output [31:0] out_remainder);
 
 	// We have been hoodwinked, bamboozled, led astray, run amuck, and flat out decieved by the ELEC 374 lecture slides.
 	// Lecture Slides: Array Divisors are super fast y'all
@@ -14,17 +19,7 @@ module divider_32(input clk, input [31:0] in_dividend, input [31:0] in_divisor, 
 	reg [31:0] w_pos_dividend;
 	wire [31:0] w_inv_divisor;
 	wire [31:0] w_inv_dividend;
-	wire [31:0] w_pos_quotient;
-	wire [31:0] w_neg_quotient;
-	
-	wire [31:0] w_array_block_out [0:3];
-	wire [31:0] w_sum;
-	
-	reg [38:0] r_array_block_in [0:2];
-	reg r_in_mode [0:2];
-	
-	integer i;
-	
+		
 	// Adders to normalize divisor/dividend/quotient to positive
 	adder_32 invert_dividend (.in_x (~in_dividend),
 		.in_y (32'b0),
@@ -38,63 +33,34 @@ module divider_32(input clk, input [31:0] in_dividend, input [31:0] in_divisor, 
 		.out_sum (w_inv_divisor),
 		.out_carry ());
 		
-	adder_32 invert_quotient (.in_x (~w_pos_quotient),
-		.in_y (32'b0),
-		.in_carry (1'b1),
-		.out_sum (w_neg_quotient),
-		.out_carry ());
+	reg [31:0] r_a;
+	reg [31:0] r_m;
+	reg [31:0] r_q;
+	reg [63:0] r_shift;
+	
+	assign out_quotient = r_q;
+	assign out_remainder = r_a;
+
 	//------------------------------------------------
+
 	
-	array_division_block_8x32 block1 (.in_x ({31'b0, w_pos_dividend[31:24]}),
-		.in_y (w_pos_divisor),
-		.in_mode (1'b1),
-		.out_result (w_array_block_out[0]),
-		.out_quotient (w_pos_quotient[31:24]));
-		
-	array_division_block_8x32 block2 (.in_x (r_array_block_in[0]),
-		.in_y (w_pos_divisor),
-		.in_mode (r_in_mode[0]),
-		.out_result (w_array_block_out[1]),
-		.out_quotient (w_pos_quotient[23:16]));
-		
-	array_division_block_8x32 block3 (.in_x (r_array_block_in[1]),
-		.in_y (w_pos_divisor),
-		.in_mode (r_in_mode[1]),
-		.out_result (w_array_block_out[2]),
-		.out_quotient (w_pos_quotient[15:8]));
-		
-	array_division_block_8x32 block4 (.in_x (r_array_block_in[2]),
-		.in_y (w_pos_divisor),
-		.in_mode (r_in_mode[2]),
-		.out_result (w_array_block_out[3]),
-		.out_quotient (w_pos_quotient[7:0]));
-	
-	adder_32 restore (.in_x (w_array_block_out[3]),
-		.in_y (w_pos_divisor),
-		.in_carry (1'b0),
-		.out_sum (w_sum),
-		.out_carry ());
-	
-	always @(posedge clk) begin
-		for (i = 0; i < 3; i = i + 1) begin
-			r_in_mode[i] <= w_pos_quotient[24 - (8*i)];
-		end
-		
-		r_array_block_in[0] <= {w_array_block_out[0][30:0], w_pos_dividend[23:16]};
-		r_array_block_in[1] <= {w_array_block_out[1][30:0], w_pos_dividend[15:8]};
-		r_array_block_in[2] <= {w_array_block_out[2][30:0], w_pos_dividend[7:0]};
-		
-				
-		if (in_divisor[31] ^ in_dividend[31] == 0) begin
-			out_quotient = w_pos_quotient;
-		end else begin 
-			out_quotient = w_neg_quotient;
-		end
-		
-		if (w_pos_quotient[0] == 0) begin 
-			out_remainder <= w_sum;
+	always @(posedge clk, posedge in_reset) begin
+		if(in_reset) begin 
+			r_a = 32'b0;
+			r_q = w_pos_dividend;
+			r_m = w_pos_divisor;
 		end else begin
-			out_remainder <= w_array_block_out[3];
+			r_shift = {r_a, r_q} << 1;
+			r_a = r_shift[63:32];
+			r_q = r_q << 1;
+			r_a = r_a - r_m;
+			
+			if(r_a[31]) begin	// r_a is negative
+				r_q[0] = 1'b0;
+				r_a = r_a + r_m;
+			end else begin  // r_a is positive
+				r_q[0] = 1'b1;
+			end
 		end
 	end
 	
@@ -138,6 +104,7 @@ module divider_32_tb;
 	end*/
 	
 	reg [31:0] dividend, divisor;
+	reg reset;
 	wire [31:0] quotient, remainder;
 	
 	parameter pos_pos = 0;
@@ -151,6 +118,7 @@ module divider_32_tb;
 	reg clk;
 	
 	divider_32 DUT ( .clk (clk),
+		.in_reset (reset),
 		.in_dividend (dividend),
 		.in_divisor (divisor),
 		.out_quotient (quotient),
@@ -159,15 +127,17 @@ module divider_32_tb;
 	initial begin
 		state = 0;
 		clk = 0;
+		reset = 1;
 		forever #10 clk = ~clk;
 	end
 	
 	always @(posedge clk) begin
 		count = count + 1;
-		
-		if (count == 4) begin
+		reset = 0;
+		if (count == 32) begin
 			count = 0;
 			state = state + 1;
+			reset = 1;
 		end
 	end
 	
