@@ -112,8 +112,8 @@ endmodule
 // Note: When compiling these in VSIM, you may need to run vsim <testbench file> -L altera_mf_ver
 
 module system_tb_ld_case1;
-	// Set M[0] to 0000000010000000000001010101
-	// Set M{85] to some 32 bit value
+	// Set M[0] to 00000000100000000000000001010101
+	// Set M{85] to some 32 bit value (1010101)
 	// Output -> R1 should be M[85]
 	
 	reg clk, reg_clear, mdr_select, inc_pc, gra, grb, grc, ba_read, con_write;
@@ -286,7 +286,7 @@ module system_tb_ld_case1;
 endmodule
 
 module system_tb_ld_case2;
-	// Set M[0] to 00000 0000 0001 0000 00000000100011
+	// Set M[0] to 00000000000010000000000000100011
 	// Set M{85] to some 32 bit value
 	// Output -> R0 should be M[85]
 	
