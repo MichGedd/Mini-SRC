@@ -36,6 +36,7 @@ module control_unit (input clk,
 	output reg out_mem_read,
 	// ALU Signals
 	output reg [3:0] out_alu_opcode,
+	output reg out_div_reset,
 	// Memory Signals
 	output reg out_mdr_select,
 	// PC Signals
@@ -72,6 +73,7 @@ module control_unit (input clk,
 	
 	reg [31:0] state = reset;
 	reg fetch_buffer = 0;
+	integer div_counter = 0;
 	
 	always @(posedge clk, posedge in_reset) begin
 		if (in_reset) begin
@@ -110,6 +112,18 @@ module control_unit (input clk,
 			endcase
 			
 			fetch_buffer = 0;
+		end else if (state == div4) begin
+			if(div_counter == 0) begin
+				out_div_reset = 1;
+				div_counter = div_counter + 1;
+			end else if (div_counter == 34) begin
+				div_counter = 0;
+				state = div5;
+			end else begin
+				out_div_reset = 0;
+				div_counter = div_counter + 1;
+			end
+			
 		end
 		else begin
 			case(state)
@@ -182,7 +196,6 @@ module control_unit (input clk,
 				mul6 : state = fetch0;
 				
 				div3 : state = div4;
-				div4 : state = div5;
 				div5 : state = div6;
 				div6 : state = fetch0;
 				
@@ -461,6 +474,7 @@ module control_unit (input clk,
 				endcase
 			end
 			mul5, div5 : begin
+				out_regfile_read <= 0;
 				out_grb <= 0;
 				out_z_write <= 0;
 				
