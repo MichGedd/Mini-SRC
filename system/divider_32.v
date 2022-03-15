@@ -1,40 +1,20 @@
-module divider_32(input [31:0] in_dividend, input [31:0] in_divisor, output reg [31:0] out_quotient, output reg [31:0] out_remainder);
-
-	// We have been hoodwinked, bamboozled, led astray, run amuck, and flat out decieved by the ELEC 374 lecture slides.
-	// Lecture Slides: Array Divisors are super fast y'all
-	// Our Array Divisor: UwU 4.01 MHz max clock pweez 
-	//----------------------------------------------------------------------
-	// In all seriousness we really need to reduce the ammount of logic here.
-	// Biggest issue is probably the fact that the carry/mode gets propogated between rows and
-	// has 32^2 full adders to pass through until we get to the bottom.....
+module divider_32(input clk, 
+	input in_reset,
+	input [31:0] in_dividend,
+	input [31:0] in_divisor,
+	output reg [31:0] out_quotient,
+	output [31:0] out_remainder);
 	
-	// Update: Switching from RCA to two cla_16 in ripple managed to increase clock speed from 4.01 MHz to 6.0 MHz, a 50% speed up. Maybe see if we can use booth's to reduce to 16 layers rather than 32?
+	// Division takes 34 cycles. Cycle 0 -> Reset. Cycle 33 -> Answer
 	
 	reg [31:0] w_pos_divisor;
 	reg [31:0] w_pos_dividend;
 	wire [31:0] w_inv_divisor;
 	wire [31:0] w_inv_dividend;
-	
-	wire [31:0] w_pos_quotient;
 	wire [31:0] w_neg_quotient;
-	
-	wire [63:0] w_dividend_sign_extend = {{32{1'b0}}, w_pos_dividend};
-	wire [31:0] w_partial_quotient [0:31];
-	wire [32:0] w_mode_carry;
-	wire [31:0] w_sum;
-	
-	assign w_mode_carry[32] = 1'b1;
-	assign w_pos_quotient = w_mode_carry[31:0];
-	
-	genvar i;
-	
-	adder_32 adder (.in_x (w_partial_quotient[31]),
-		.in_y (w_pos_divisor),
-		.in_carry (1'b0),
-		.out_sum (w_sum),
-		.out_carry ());
-	
-	// These two adders are for negating dividend and divisor
+	wire [31:0] w_pos_quotient;
+		
+	// Adders to normalize divisor/dividend/quotient to positive
 	adder_32 invert_dividend (.in_x (~in_dividend),
 		.in_y (32'b0),
 		.in_carry (1'b1),
@@ -47,58 +27,62 @@ module divider_32(input [31:0] in_dividend, input [31:0] in_divisor, output reg 
 		.out_sum (w_inv_divisor),
 		.out_carry ());
 	
-	// This adder is for inverting the output to match signs
-	adder_32 invert_quotient (.in_x (~w_pos_quotient),
+	adder_32 invert_quotient(.in_x (~w_pos_quotient),
 		.in_y (32'b0),
 		.in_carry (1'b1),
 		.out_sum (w_neg_quotient),
 		.out_carry ());
+		
+	reg [31:0] r_a;
+	reg [31:0] r_m;
+	reg [31:0] r_q;
+	reg [63:0] r_shift;
+		
+	assign out_remainder = r_a;
+	assign w_pos_quotient = r_q;
 	
-	generate
-		for(i = 0; i < 32; i = i + 1) begin : gen_division_rows
-			if (i == 0) begin
-				array_division_row_32 row ( .in_x (w_dividend_sign_extend[62:31]),
-				.in_y (w_pos_divisor),
-				.in_mode (w_mode_carry[32-i]),
-				.out_result (w_partial_quotient[i]),
-				.out_y (),
-				.out_carry (w_mode_carry[31-i]));
-			end else begin
-				array_division_row_32 row ( .in_x ({w_partial_quotient[i-1][30:0], w_dividend_sign_extend[31-i]}),
-				.in_y (w_pos_divisor),
-				.in_mode (w_mode_carry[32-i]),
-				.out_result (w_partial_quotient[i]),
-				.out_y (),
-				.out_carry (w_mode_carry[31-i]));
+	//------------------------------------------------
+
+	
+	always @(posedge clk, posedge in_reset) begin
+		if(in_reset) begin 
+			r_a = 32'b0;
+			r_q = w_pos_dividend;
+			r_m = w_pos_divisor;
+		end else begin
+			r_shift = {r_a, r_q} << 1;
+			r_a = r_shift[63:32];
+			r_q = r_q << 1;
+			r_a = r_a - r_m;
+			
+			if(r_a[31]) begin	// r_a is negative
+				r_q[0] = 1'b0;
+				r_a = r_a + r_m;
+			end else begin  // r_a is positive
+				r_q[0] = 1'b1;
 			end
 		end
-	
-	endgenerate
+	end
 	
 	always @(*) begin
-		case (w_mode_carry[0])
-			1'b0: out_remainder = w_sum;
-			1'b1:	out_remainder = w_partial_quotient[31];
-			default: out_remainder = 32'b0;
-		endcase
+		if (in_divisor[31] == 0) begin
+			w_pos_divisor = in_divisor;
+		end else begin
+			w_pos_divisor = w_inv_divisor;
+		end
 		
-		case (in_divisor[31])  // Determine abs val of divisor
-			1'b0: w_pos_divisor = in_divisor;
-			1'b1: w_pos_divisor = w_inv_divisor;
-			default: w_pos_divisor = 32'b0;
-		endcase
+		if (in_dividend[31] == 0) begin
+			w_pos_dividend = in_dividend;
+		end else begin
+			w_pos_dividend = w_inv_dividend;
+		end
 		
-		case (in_dividend[31])  // Determine abs val of dividend
-			1'b0: w_pos_dividend = in_dividend;
-			1'b1: w_pos_dividend = w_inv_dividend;
-			default w_pos_dividend = 32'b0;
-		endcase
+		if(in_divisor[31] ^ in_dividend[31]) begin
+			out_quotient = w_neg_quotient;
+		end else begin
+			out_quotient = w_pos_quotient;
+		end
 		
-		case (in_divisor[31] ^ in_dividend[31])
-			1'b0: out_quotient = w_pos_quotient;
-			1'b1: out_quotient = w_neg_quotient;
-			default out_quotient = 32'b0;
-		endcase
 	end
 
 endmodule
@@ -106,25 +90,61 @@ endmodule
 //------------------------------
 
 module divider_32_tb;
-
+	
 	reg [31:0] dividend, divisor;
+	reg reset;
 	wire [31:0] quotient, remainder;
 	
-	parameter delay = 10;
+	parameter pos_pos = 0;
+	parameter pos_neg = 1;
+	parameter neg_pos = 2;
+	parameter neg_neg = 3;
 	
-	divider_32 DUT (.in_dividend (dividend),
+	integer count = 0;
+	integer state;
+	
+	reg clk;
+	
+	divider_32 DUT ( .clk (clk),
+		.in_reset (reset),
+		.in_dividend (dividend),
 		.in_divisor (divisor),
 		.out_quotient (quotient),
 		.out_remainder (remainder));
-		
+	
 	initial begin
-		//dividend = 32'b1100111; divisor = 32'b0111;
-		dividend = 32'ha; divisor = 32'h1;  // 10 div 1;  Output should be 10R1
-		#(delay) dividend = 32'h1e; divisor = 32'h4;  // 30 div 4; Output should be 7R2 
-		#(delay) dividend = 32'ha; divisor = 32'hFFFFFFFD;  // 10 div -3. Output should be -3R1
-		#(delay) dividend = 32'hFFFFFE0C; divisor = 32'h3;  // -500 div 3. Output should be -166R2
-		#(delay) dividend = 32'hFFFFFF9C; divisor = 32'hFFFFFFF7;  // -100 div -9. Output should be 11R1
-		#(delay) dividend = 32'd34; divisor = 32'd36;  // 34 div 36. Output should be 0R34
+		state = 0;
+		clk = 0;
+		reset = 1;
+		forever #10 clk = ~clk;
 	end
+	
+	always @(posedge clk) begin
+		count = count + 1;
+		reset = 0;
+		if (count == 34) begin
+			count = 0;
+			state = state + 1;
+			reset = 1;
+		end
+	end
+	
+	always @(state) begin
+		case(state)
+			pos_pos : begin
+				dividend = 32'h1e; divisor = 32'h4;
+			end
+			pos_neg : begin
+				dividend = 32'ha; divisor = 32'hFFFFFFFD;
+			end
+			neg_pos : begin
+				dividend = 32'hFFFFFE0C; divisor = 32'h3;
+			end
+			neg_neg : begin
+				dividend = 32'hFFFFFF9C; divisor = 32'hFFFFFFF7;
+			end
+		endcase
+	end
+	
 
 endmodule

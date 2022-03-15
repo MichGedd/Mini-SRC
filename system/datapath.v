@@ -6,6 +6,7 @@ module datapath(input clk,
 	input in_mdr_select, // This selects whether to read from bus or memory. 0 for bus, 1 for memory
 	input in_inc_pc,
 	input in_BAout,
+	input in_div_reset,  // This is the reset value for the divider
 	input [31:0] in_inport_data,
 	// Read signals
 	input in_regfile_read,
@@ -132,7 +133,9 @@ module datapath(input clk,
 		.in_write (in_mdr_write),
 		.out (w_MDR_out));
 	
-	alu_32 alu(.in_a (w_Y_out),
+	alu_32 alu(.clk (clk),
+		.in_div_reset (in_div_reset),
+		.in_a (w_Y_out),
 		.in_b (r_bus),
 		.in_opcode (in_alu_opcode),
 		.out_result (w_alu_out));
