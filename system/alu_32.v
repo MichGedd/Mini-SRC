@@ -30,8 +30,8 @@ module alu_32(input clk, input in_div_reset, input [31:0] in_a, input [31:0] in_
 	reg [31:0] r_b_inverted;
 	reg r_adder_carry_in;
 	
-	assign w_and_32 = in_a && in_b;
-	assign w_or_32 = in_a || in_b;
+	assign w_and_32 = in_a & in_b;
+	assign w_or_32 = in_a | in_b;
 	assign w_not_32 = ~r_b_pre_process;
 	
 	adder_32 adder(.in_x (r_a_pre_process),
