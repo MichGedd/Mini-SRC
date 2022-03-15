@@ -157,7 +157,6 @@ endmodule
 // Note: When compiling these in VSIM, you may need to run vsim <testbench file> -L altera_mf_ver
 
 module system_tb;
-
 	reg clk, reset, stop;
 	reg [31:0] inport_data;
 	
@@ -184,5 +183,4 @@ module system_tb;
 	always @(clk) begin
 		reset = 0;
 	end
-	
 endmodule
