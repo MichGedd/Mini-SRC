@@ -11,6 +11,7 @@ module system(input clk,
 	wire [31:0] w_ir_out;
 	wire [31:0] w_bus_out;
 	wire [3:0] w_regfile_location;
+	wire [31:0] w_outport_data;
 	
 	// Select Encode Signals
 	wire w_gra;
@@ -61,7 +62,7 @@ module system(input clk,
 		.in_reg_clear (w_clr),
 		.in_inc_pc (w_inc_pc),
 		.in_mdr_select (w_mdr_select),
-		.in_div_reset (w_div_reset),  // TODO
+		.in_div_reset (w_div_reset),
 		.in_regfile_read (w_selenc_regfile_read),
 		.in_hi_read (w_hi_read),
 		.in_lo_read (w_lo_read),
@@ -87,7 +88,7 @@ module system(input clk,
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
-		.out_outport(outport_data));
+		.out_outport(w_outport_data));
 	
 	memory RAM (.clock (clk),
 		.address (w_mem_address[8:0]),
@@ -150,6 +151,14 @@ module system(input clk,
 		.out_div_reset (w_div_reset),
 		.out_mdr_select (w_mdr_select),
 		.out_inc_pc (w_inc_pc));
+	
+	seven_segment_display ssd_0 (.clk (clk),
+		.data (w_outport_data[3:0]),
+		.out (outport_data[7:0]));
+		
+	seven_segment_display ssd_1 (.clk (clk),
+		.data (w_outport_data[7:4]),
+		.out (outport_data[15:8]));
 
 endmodule
 

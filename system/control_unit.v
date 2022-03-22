@@ -73,7 +73,7 @@ module control_unit (input clk,
 	
 	reg [31:0] state = reset;
 	reg fetch_buffer = 0;
-	integer div_counter = 0;
+	reg [7:0] div_counter = 0;
 	
 	always @(posedge clk, posedge in_reset) begin
 		if (in_reset) begin
