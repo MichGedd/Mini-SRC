@@ -183,7 +183,7 @@ module system_tb;
 		clk = 0;
 		reset = 1;
 		stop = 0;
-		inport_data = 32'b0;
+		inport_data = 32'h88;
 		forever begin 
 			#10 clk = ~clk;
 		end

@@ -95,4 +95,28 @@ set_global_assignment -name OPTIMIZATION_TECHNIQUE BALANCED
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
 set_location_assignment PIN_U7 -to reset
 set_location_assignment PIN_W9 -to stop
+set_location_assignment PIN_N1 -to run
+set_location_assignment PIN_U13 -to inport_data[0]
+set_location_assignment PIN_V13 -to inport_data[1]
+set_location_assignment PIN_T13 -to inport_data[2]
+set_location_assignment PIN_T12 -to inport_data[3]
+set_location_assignment PIN_AA15 -to inport_data[4]
+set_location_assignment PIN_AB15 -to inport_data[5]
+set_location_assignment PIN_AA14 -to inport_data[6]
+set_location_assignment PIN_AA13 -to inport_data[7]
+set_location_assignment PIN_U21 -to outport_data[0]
+set_location_assignment PIN_V21 -to outport_data[1]
+set_location_assignment PIN_W21 -to outport_data[2]
+set_location_assignment PIN_W22 -to outport_data[3]
+set_location_assignment PIN_Y22 -to outport_data[4]
+set_location_assignment PIN_Y21 -to outport_data[5]
+set_location_assignment PIN_AA22 -to outport_data[6]
+set_location_assignment PIN_AA20 -to outport_data[8]
+set_location_assignment PIN_AB20 -to outport_data[9]
+set_location_assignment PIN_AA19 -to outport_data[10]
+set_location_assignment PIN_AA18 -to outport_data[11]
+set_location_assignment PIN_AB18 -to outport_data[12]
+set_location_assignment PIN_AA17 -to outport_data[13]
+set_location_assignment PIN_U22 -to outport_data[14]
+set_location_assignment PIN_M9 -to clk
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
