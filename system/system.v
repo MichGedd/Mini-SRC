@@ -53,6 +53,10 @@ module system(input clk,
 	wire w_inc_pc;
 	wire w_clr;
 	wire w_branch;
+	
+	// DE0-CV Wires
+	wire w_reset = ~reset;
+	wire w_stop = ~stop;
 
 		
 	datapath path (.clk (clk),
@@ -115,8 +119,8 @@ module system(input clk,
 		.out_branch (w_branch));
 		
 	control_unit control (.clk (clk),
-		.in_reset (reset),
-		.in_stop (stop),
+		.in_reset (w_reset),
+		.in_stop (w_stop),
 		.in_ir (w_ir_out),
 		.in_branch (w_branch),
 		.out_run (run),
@@ -181,15 +185,15 @@ module system_tb;
 	
 	initial begin
 		clk = 0;
-		reset = 1;
-		stop = 0;
+		reset = 0;
+		stop = 1;
 		inport_data = 32'h88;
 		forever begin 
 			#10 clk = ~clk;
 		end
 	end
 	
-	always @(clk) begin
-		reset = 0;
+	always @(posedge clk) begin
+		reset = 1;
 	end
 endmodule
