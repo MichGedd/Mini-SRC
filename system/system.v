@@ -181,8 +181,8 @@ module system_tb;
 	
 	initial begin
 		clk = 0;
-		reset = 1;
-		stop = 0;
+		reset = 0;
+		stop = 1;
 		inport_data = 32'h88;
 		forever begin 
 			#10 clk = ~clk;
@@ -190,6 +190,6 @@ module system_tb;
 	end
 	
 	always @(clk) begin
-		reset = 0;
+		reset = 1;
 	end
 endmodule

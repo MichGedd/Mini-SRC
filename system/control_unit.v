@@ -75,10 +75,10 @@ module control_unit (input clk,
 	reg fetch_buffer = 0;
 	reg [7:0] div_counter = 0;
 	
-	always @(posedge clk, posedge in_reset) begin
-		if (in_reset) begin
+	always @(posedge clk, negedge in_reset) begin
+		if (~in_reset) begin  // DE0-CV board has buttons as pull-up 
 			state = reset;
-		end else if (in_stop) begin
+		end else if (~in_stop) begin // DE0-CV board has buttons as pull-up
 			state = halt3;
 		end else if (fetch_buffer) begin
 			case(in_ir[31:27])
