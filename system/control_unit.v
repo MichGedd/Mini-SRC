@@ -40,7 +40,9 @@ module control_unit (input clk,
 	// Memory Signals
 	output reg out_mdr_select,
 	// PC Signals
-	output reg out_inc_pc);
+	output reg out_inc_pc,
+	// Hardware Testing Signals
+	output wire [31:0] out_state);
 	
 	parameter reset = 32'd1, fetch0 = 32'd2, fetch1 = 32'd3, fetch2 = 32'd4,
 	load3 = 32'd5, load4 = 32'd6, load5 = 32'd7, load6 = 32'd8, load7 = 32'd9,
@@ -75,10 +77,13 @@ module control_unit (input clk,
 	reg fetch_buffer = 0;
 	reg [7:0] div_counter = 0;
 	
-	always @(posedge clk, posedge in_reset) begin
-		if (in_reset) begin
+	// Hardware Testing
+	assign out_state = state;
+	
+	always @(posedge clk, negedge in_reset) begin
+		if (~in_reset) begin  // DE0-CV board has buttons as pull-up 
 			state = reset;
-		end else if (in_stop) begin
+		end else if (~in_stop) begin // DE0-CV board has buttons as pull-up
 			state = halt3;
 		end else if (fetch_buffer) begin
 			case(in_ir[31:27])

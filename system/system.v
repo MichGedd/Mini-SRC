@@ -3,6 +3,7 @@ module system(input clk,
 	input stop,
 	input [31:0] inport_data,
 	output [31:0] outport_data,
+	output [15:0] pc_ssd,
 	output run);
 
 	wire [31:0] w_mem_address;
@@ -53,13 +54,18 @@ module system(input clk,
 	wire w_inc_pc;
 	wire w_clr;
 	wire w_branch;
+	
+	// Hardware Testing Signals
+	wire [31:0] w_state;
+	wire w_clk;
+	wire [31:0] w_pc_val;
 
 		
-	datapath path (.clk (clk),
+	datapath path (.clk (w_clk),
 		.in_regfile_location (w_regfile_location),
 		.in_alu_opcode (w_alu_opcode),
 		.in_mem_data (w_mem_data),
-		.in_reg_clear (w_clr),
+		.in_reg_clear (1'b1),
 		.in_inc_pc (w_inc_pc),
 		.in_mdr_select (w_mdr_select),
 		.in_div_reset (w_div_reset),
@@ -88,9 +94,10 @@ module system(input clk,
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
-		.out_outport(w_outport_data));
+		.out_outport(w_outport_data),
+		.out_pc(w_pc_val));
 	
-	memory RAM (.clock (clk),
+	memory RAM (.clock (w_clk),
 		.address (w_mem_address[8:0]),
 		.data (w_mdr_data),
 		.rden (w_mem_read),
@@ -108,13 +115,13 @@ module system(input clk,
 		.out_regfile_read (w_selenc_regfile_read),
 		.out_regfile_write (w_selenc_regfile_write));
 	
-	con_ff_logic CON_FF(.clk (clk),
+	con_ff_logic CON_FF(.clk (w_clk),
 		.in_condition (w_ir_out[20:19]),
 		.in_bus (w_bus_out),
 		.in_con_write (w_conff_write),
 		.out_branch (w_branch));
 		
-	control_unit control (.clk (clk),
+	control_unit control (.clk (w_clk),
 		.in_reset (reset),
 		.in_stop (stop),
 		.in_ir (w_ir_out),
@@ -150,15 +157,31 @@ module system(input clk,
 		.out_alu_opcode (w_alu_opcode),
 		.out_div_reset (w_div_reset),
 		.out_mdr_select (w_mdr_select),
-		.out_inc_pc (w_inc_pc));
+		.out_inc_pc (w_inc_pc),
+		.out_state (w_state));
+		
+	clock_divider clock_div(.in_clock (clk),
+		.out_clock (w_clk));
 	
-	seven_segment_display ssd_0 (.clk (clk),
+	seven_segment_display ssd_0 (.clk (w_clk),
 		.data (w_outport_data[3:0]),
 		.out (outport_data[7:0]));
 		
-	seven_segment_display ssd_1 (.clk (clk),
+	seven_segment_display ssd_1 (.clk (w_clk),
 		.data (w_outport_data[7:4]),
 		.out (outport_data[15:8]));
+	
+	// -------------------------------------
+	
+	seven_segment_display pc_ssd_0(.clk (w_clk),
+		.data (w_pc_val[3:0]),
+		.out (pc_ssd[7:0]));
+	
+	seven_segment_display pc_ssd_1(.clk (w_clk),
+		.data (w_pc_val[7:4]),
+		.out (pc_ssd[15:8]));
+	
+	assign outport_data[31:16] = w_state[15:0];
 
 endmodule
 
@@ -181,8 +204,8 @@ module system_tb;
 	
 	initial begin
 		clk = 0;
-		reset = 1;
-		stop = 0;
+		reset = 0;
+		stop = 1;
 		inport_data = 32'h88;
 		forever begin 
 			#10 clk = ~clk;
@@ -190,6 +213,6 @@ module system_tb;
 	end
 	
 	always @(clk) begin
-		reset = 0;
+		reset = 1;
 	end
 endmodule
