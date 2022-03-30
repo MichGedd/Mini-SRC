@@ -10,8 +10,8 @@ module clock_divider(input in_clock, output reg out_clock);
 
 	reg [27:0] counter= 28'd0;
 	
-	parameter DIVISOR = 28'd10000000;
-	//parameter DIVISOR = 28'd2;
+	//parameter DIVISOR = 28'd10000000;
+	parameter DIVISOR = 28'd5;
 	
 	always @(posedge in_clock) begin
 		counter <= counter + 28'd1;
