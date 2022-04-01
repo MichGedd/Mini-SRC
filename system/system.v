@@ -1,10 +1,9 @@
 module system(input clk,
 	input reset,
 	input stop,
-	input [31:0] inport_data,
-	output [31:0] outport_data,
-	output run,
-	output [7:0] state);
+	input [7:0] inport_data,
+	output [13:0] outport_data,
+	output run);
 
 	wire [31:0] w_mem_address;
 	wire [31:0] w_mdr_data;
@@ -96,7 +95,7 @@ module system(input clk,
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
 		.out_outport(w_outport_data),
-		.out_R (w_out_R));
+		.out_R (w_out_R));  // DE0-CV Testing
 	
 	memory RAM (.clock (w_clk),
 		.address (w_mem_address[8:0]),
@@ -163,19 +162,11 @@ module system(input clk,
 	
 	seven_segment_display ssd_0 (.clk (w_clk),
 		.data (w_outport_data[3:0]),
-		.out (outport_data[7:0]));
+		.out (outport_data[6:0]));
 		
 	seven_segment_display ssd_1 (.clk (w_clk),
 		.data (w_outport_data[7:4]),
-		.out (outport_data[15:8]));
-		
-	seven_segment_display ssd_2 (.clk (w_clk),
-		.data (w_out_R[3:0]),
-		.out (outport_data[23:16]));
-		
-	seven_segment_display ssd_3 (.clk (w_clk),
-		.data (w_out_R[7:4]),
-		.out (outport_data[31:24]));
+		.out (outport_data[13:7]));
 		
 	clock_divider clk_div(.in_clock (clk),
 		.out_clock (w_clk));
