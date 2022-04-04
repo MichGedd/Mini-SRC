@@ -1,3 +1,5 @@
+// NOTE: This Verilog Code was taken from https://www.fpga4student.com/2017/08/verilog-code-for-clock-divider-on-fpga.html
+
 // fpga4student.com: FPGA projects, VHDL projects, Verilog projects
 // Verilog project: Verilog code for clock divider on FPGA
 // Top level Verilog code for clock divider on FPGA
