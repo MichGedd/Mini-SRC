@@ -33,8 +33,7 @@ module datapath(input clk,
 	output [31:0] out_mdr,
 	output [31:0] out_mar,
 	output [31:0] out_ir,
-	output [31:0] out_outport,
-	output [31:0] out_R);  // DE0-CV Testing
+	output [31:0] out_outport);
 
 	reg [31:0] r_bus;  // This is the bus
 	reg [31:0] w_pc_in;  // Input to PC
@@ -75,9 +74,7 @@ module datapath(input clk,
 		.in_write (in_regfile_write),
 		.in_read (in_regfile_read),
 		.in_clk (clk),
-		.in_BAout (in_BAout),
-		.out_R12 (out_R)  // DE0-CV Testing
-	);
+		.in_BAout (in_BAout));
 	
 	register_32 OutPort (
 		.D (r_bus),

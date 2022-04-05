@@ -10,15 +10,13 @@ module registerfile_16x32 (
 	input in_write, //stores the Cdata in the Cselect location
 	input in_read, //retrieves the Adata from Aselect location.
 	input in_clk, //clock in
-	input in_BAout, //base address in signal.
-	output [31:0] out_R12);
+	input in_BAout //base address in signal.
+	);
 
 
 	wire [15:0] w_A_select;
 	wire [15:0] w_C_select;
-	
-	assign out_R12 = w_reg_out [3];
-	
+		
 	//Decodes the output select
 	decoder_4_to_16 Adecoder(
 		.in_4 (in_Aselect),

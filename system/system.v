@@ -58,7 +58,6 @@ module system(input clk,
 	wire w_reset = ~reset;
 	wire w_stop = ~stop;
 	wire w_clk;
-	wire [31:0] w_out_R;
 	wire [31:0] w_inport = {{24{1'b0}}, {inport_data[7:0]}};
 		
 	datapath path (.clk (w_clk),
@@ -94,8 +93,7 @@ module system(input clk,
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
-		.out_outport(w_outport_data),
-		.out_R (w_out_R));  // DE0-CV Testing
+		.out_outport(w_outport_data));
 	
 	memory RAM (.clock (w_clk),
 		.address (w_mem_address[8:0]),
