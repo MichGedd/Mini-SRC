@@ -40,7 +40,8 @@ module control_unit (input clk,
 	// Memory Signals
 	output reg out_mdr_select,
 	// PC Signals
-	output reg out_inc_pc);
+	output reg out_inc_pc,
+	output [7:0] out_state);
 	
 	parameter reset = 32'd1, fetch0 = 32'd2, fetch1 = 32'd3, fetch2 = 32'd4,
 	load3 = 32'd5, load4 = 32'd6, load5 = 32'd7, load6 = 32'd8, load7 = 32'd9,
@@ -73,7 +74,45 @@ module control_unit (input clk,
 	
 	reg [31:0] state = reset;
 	reg fetch_buffer = 0;
-	integer div_counter = 0;
+	reg [7:0] div_counter = 0;
+	
+	assign out_state = state[7:0];
+	
+	task set_signals();
+		begin
+			out_clear <= 1; // Make sure registers are not being cleared
+			out_gra <= 0;
+			out_grb <= 0;
+			out_grc <= 0;
+			out_ba_read <= 0;
+			out_regfile_write <= 0;
+			out_hi_write <= 0;
+			out_lo_write <= 0;
+			out_z_write <= 0;
+			out_pc_write <= 0;
+			out_mdr_write <= 0;
+			out_ir_write <= 0;
+			out_y_write <= 0;
+			out_mem_write <= 0;
+			out_outport_write <= 0;
+			out_conff_write <= 0;
+			out_hi_read <= 0;
+			out_lo_read <= 0;
+			out_z_lo_read <= 0;
+			out_z_hi_read <= 0;
+			out_regfile_read <= 0;
+			out_mdr_read <= 0;
+			out_inport_read <= 0;
+			out_c_read <= 0;
+			out_alu_opcode <= 4'b0000;
+			out_mdr_select <= 0;
+			out_pc_read <= 0;
+			out_mar_write <= 0;
+			out_inc_pc <= 0;
+			out_pc_write <= 0;
+			out_mem_read <= 0;
+		end
+	endtask
 	
 	always @(posedge clk, posedge in_reset) begin
 		if (in_reset) begin
@@ -266,33 +305,7 @@ module control_unit (input clk,
 				out_inc_pc <= 0;
 			end
 			fetch0 : begin
-				out_clear <= 1; // Make sure registers are not being cleared
-				
-				out_gra <= 0;
-				out_grb <= 0;
-				out_grc <= 0;
-				out_ba_read <= 0;
-				out_regfile_write <= 0;
-				out_hi_write <= 0;
-				out_lo_write <= 0;
-				out_z_write <= 0;
-				out_pc_write <= 0;
-				out_mdr_write <= 0;
-				out_ir_write <= 0;
-				out_y_write <= 0;
-				out_mem_write <= 0;
-				out_outport_write <= 0;
-				out_conff_write <= 0;
-				out_hi_read <= 0;
-				out_lo_read <= 0;
-				out_z_lo_read <= 0;
-				out_z_hi_read <= 0;
-				out_regfile_read <= 0;
-				out_mdr_read <= 0;
-				out_inport_read <= 0;
-				out_c_read <= 0;
-				out_alu_opcode <= 4'b0000;
-				out_mdr_select <= 0;
+				set_signals();
 				
 				out_pc_read <= 1;
 				out_mar_write <= 1;
@@ -301,115 +314,94 @@ module control_unit (input clk,
 				out_mem_read <= 1;
 			end
 			fetch1 : begin
-				out_pc_read <= 0;
-				out_mar_write <= 0;
-				out_inc_pc <= 0;
-				out_pc_write <= 0;
-				out_mem_read <= 0;
+				set_signals();
 				
 				out_mdr_write <= 1;
 				out_mdr_select <= 1;
 			end
 			fetch2 : begin
-				out_mdr_write <= 0;
-				out_mdr_select <= 0;
+				set_signals();
 				
 				out_mdr_read <= 1;
 				out_ir_write <= 1;
 			end
 			load3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_grb <= 1;
 				out_ba_read <= 1;
 				out_y_write <= 1;
 			end
 			load4 : begin
-				out_grb <= 0;
-				out_ba_read <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_c_read <= 1;
 				out_alu_opcode <= 4'b0000;
 				out_z_write <= 1;
 			end
 			load5 : begin
-				out_c_read <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_mar_write <= 1;
 				out_mem_read <= 1;
 			end
 			load6 : begin
-				out_z_lo_read <= 0;
-				out_mar_write <= 0;
-				out_mem_read <= 0;
+				set_signals();
 				
 				out_mdr_write <= 1;
 				out_mdr_select <= 1;
 			end
 			load7 : begin
-				out_mdr_write <= 0;
-				out_mdr_select <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_regfile_write <= 1;
 				out_mdr_read <= 1;
 			end
 			loadi3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_grb <= 1;
 				out_ba_read <= 1;
 				out_y_write <= 1;
 			end
 			loadi4 : begin
-				out_grb <= 0;
-				out_ba_read <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_c_read <= 1;
 				out_alu_opcode <= 4'b0000;
 				out_z_write <= 1;
 			end
 			loadi5 : begin
-				out_c_read <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_gra <= 1;
 				out_regfile_write <= 1;
 			end
 			store3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_grb <= 1;
 				out_ba_read <= 1;
 				out_y_write <= 1;
 			end
 			store4 : begin
-				out_grb <= 0;
-				out_ba_read <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_c_read <= 1;
 				out_alu_opcode <= 4'b0000;
 				out_z_write <= 1;
 			end
 			store5 : begin
-				out_c_read <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_mar_write <= 1;
 			end
 			store6 : begin
-				out_z_lo_read <= 0;
-				out_mar_write <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_regfile_read <= 1;
@@ -418,16 +410,14 @@ module control_unit (input clk,
 				out_mem_write <= 1;
 			end
 			add3, sub3, shr3, shl3, ror3, rol3, and3, or3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_grb <= 1;
 				out_regfile_read <= 1;
 				out_y_write <= 1;
 			end
 			add4, sub4, shr4, shl4, ror4, rol4, and4, or4 : begin
-				out_grb <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_regfile_read <= 1;
 				out_grc <= 1;
@@ -445,25 +435,21 @@ module control_unit (input clk,
 				endcase
 			end
 			add5, sub5, shr5, shl5, ror5, rol5, and5, or5  : begin
-				out_regfile_read <= 0;
-				out_grc <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_regfile_write <= 1;
 				out_gra <= 1;
 			end
 			mul3, div3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_regfile_read <= 1;
 				out_gra <= 1;
 				out_y_write <= 1;
 			end
 			mul4, div4 : begin
-				out_gra <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_grb <= 1;
 				out_z_write <= 1;
@@ -474,23 +460,19 @@ module control_unit (input clk,
 				endcase
 			end
 			mul5, div5 : begin
-				out_regfile_read <= 0;
-				out_grb <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_lo_write <= 1;
 			end
 			mul6, div6 : begin
-				out_z_lo_read <= 0;
-				out_lo_write <= 0;
+				set_signals();
 				
 				out_z_hi_read <= 1;
 				out_hi_write <= 1;
 			end
 			neg3, not3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_regfile_read <= 1;
 				out_grb <= 1;
@@ -502,26 +484,21 @@ module control_unit (input clk,
 				endcase
 			end
 			neg4, not4 : begin
-				out_regfile_read <= 0;
-				out_grb <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_gra <= 1;
 				out_regfile_write <= 1;
 			end
 			addi3, andi3, ori3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_grb <= 1;
 				out_regfile_read <= 1;
 				out_y_write <= 1;
 			end
 			addi4, andi4, ori4 : begin
-				out_grb <= 0;
-				out_regfile_read <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_c_read <= 1;
 				out_z_write <= 1;
@@ -533,88 +510,75 @@ module control_unit (input clk,
 				endcase
 			end
 			addi5, andi5, ori5 : begin
-				out_c_read <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_gra <= 1;
 				out_regfile_write <= 1;
 			end
 			branch3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_regfile_read <= 1;
 				out_conff_write <= 1;
 			end
 			branch4 : begin
-				out_gra <= 0;
-				out_regfile_read <= 0;
-				out_conff_write <= 0;
+				set_signals();
 				
 				out_pc_read <= 1;
 				out_y_write <= 1;
 			end
 			branch5 : begin
-				out_pc_read <= 0;
-				out_y_write <= 0;
+				set_signals();
 				
 				out_c_read <= 1;
 				out_alu_opcode <= 4'b0000;
 				out_z_write <= 1;
 			end
 			branch6 : begin
-				out_c_read <= 0;
-				out_z_write <= 0;
+				set_signals();
 				
 				out_z_lo_read <= 1;
 				out_pc_write <= in_branch;
 			end
 			jr3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_regfile_read <= 1;
 				out_pc_write <= 1;
 			end
 			jal3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_pc_read <= 1;
 				out_regfile_write <= 1;
 				out_grb <= 1;
 			end
 			jal4 : begin
-				out_pc_read <= 0;
-				out_regfile_write <= 0;
-				out_grb <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_regfile_read <= 1;
 				out_pc_write <= 1;
 			end
 			in3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_inport_read <= 1;
 				out_regfile_write <= 1;
 			end
 			out3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_outport_write <= 1;
 				out_regfile_read <= 1;
 			end
 			mfhi3, mflo3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 				
 				out_gra <= 1;
 				out_regfile_write <= 1;
@@ -625,10 +589,10 @@ module control_unit (input clk,
 				endcase
 			end
 			nop3 : begin
-				out_mdr_read <= 0;
-				out_ir_write <= 0;
+				set_signals();
 			end
 			halt3 : begin
+				set_signals();
 				out_run <= 0;
 			end
 		endcase

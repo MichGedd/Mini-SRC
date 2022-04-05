@@ -1,8 +1,8 @@
 module system(input clk,
 	input reset,
 	input stop,
-	input [31:0] inport_data,
-	output [31:0] outport_data,
+	input [7:0] inport_data,
+	output [13:0] outport_data,
 	output run);
 
 	wire [31:0] w_mem_address;
@@ -11,6 +11,7 @@ module system(input clk,
 	wire [31:0] w_ir_out;
 	wire [31:0] w_bus_out;
 	wire [3:0] w_regfile_location;
+	wire [31:0] w_outport_data;
 	
 	// Select Encode Signals
 	wire w_gra;
@@ -52,16 +53,21 @@ module system(input clk,
 	wire w_inc_pc;
 	wire w_clr;
 	wire w_branch;
-
+	
+	// DE0-CV
+	wire w_reset = ~reset;
+	wire w_stop = ~stop;
+	wire w_clk;
+	wire [31:0] w_inport = {{24{1'b0}}, {inport_data[7:0]}};
 		
-	datapath path (.clk (clk),
+	datapath path (.clk (w_clk),
 		.in_regfile_location (w_regfile_location),
 		.in_alu_opcode (w_alu_opcode),
 		.in_mem_data (w_mem_data),
 		.in_reg_clear (w_clr),
 		.in_inc_pc (w_inc_pc),
 		.in_mdr_select (w_mdr_select),
-		.in_div_reset (w_div_reset),  // TODO
+		.in_div_reset (w_div_reset),
 		.in_regfile_read (w_selenc_regfile_read),
 		.in_hi_read (w_hi_read),
 		.in_lo_read (w_lo_read),
@@ -82,14 +88,14 @@ module system(input clk,
 		.in_mar_write (w_mar_write),
 		.in_BAout (w_ba_read),
 		.in_outport_write (w_outport_write),
-		.in_inport_data (inport_data),
+		.in_inport_data (w_inport),
 		.out_bus (w_bus_out),
 		.out_mdr (w_mdr_data),
 		.out_mar (w_mem_address),
 		.out_ir (w_ir_out),
-		.out_outport(outport_data));
+		.out_outport(w_outport_data));
 	
-	memory RAM (.clock (clk),
+	memory RAM (.clock (w_clk),
 		.address (w_mem_address[8:0]),
 		.data (w_mdr_data),
 		.rden (w_mem_read),
@@ -107,15 +113,15 @@ module system(input clk,
 		.out_regfile_read (w_selenc_regfile_read),
 		.out_regfile_write (w_selenc_regfile_write));
 	
-	con_ff_logic CON_FF(.clk (clk),
+	con_ff_logic CON_FF(.clk (w_clk),
 		.in_condition (w_ir_out[20:19]),
 		.in_bus (w_bus_out),
 		.in_con_write (w_conff_write),
 		.out_branch (w_branch));
 		
-	control_unit control (.clk (clk),
-		.in_reset (reset),
-		.in_stop (stop),
+	control_unit control (.clk (w_clk),
+		.in_reset (w_reset),
+		.in_stop (w_stop),
 		.in_ir (w_ir_out),
 		.in_branch (w_branch),
 		.out_run (run),
@@ -149,7 +155,19 @@ module system(input clk,
 		.out_alu_opcode (w_alu_opcode),
 		.out_div_reset (w_div_reset),
 		.out_mdr_select (w_mdr_select),
-		.out_inc_pc (w_inc_pc));
+		.out_inc_pc (w_inc_pc),
+		.out_state (state));
+	
+	seven_segment_display ssd_0 (.clk (w_clk),
+		.data (w_outport_data[3:0]),
+		.out (outport_data[6:0]));
+		
+	seven_segment_display ssd_1 (.clk (w_clk),
+		.data (w_outport_data[7:4]),
+		.out (outport_data[13:7]));
+		
+	clock_divider clk_div(.in_clock (clk),
+		.out_clock (w_clk));
 
 endmodule
 
@@ -172,15 +190,15 @@ module system_tb;
 	
 	initial begin
 		clk = 0;
-		reset = 1;
-		stop = 0;
-		inport_data = 32'b0;
+		reset = 0;
+		stop = 1;
+		inport_data = 32'h88;
 		forever begin 
 			#10 clk = ~clk;
 		end
 	end
 	
-	always @(clk) begin
-		reset = 0;
+	always @(posedge clk) begin
+		reset = 1;
 	end
 endmodule

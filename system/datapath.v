@@ -56,13 +56,15 @@ module datapath(input clk,
 	wire [31:0] w_pc_adder_out;  // PC has a dedicated adder
 	
 	wire [8:0] w_bus_select_signals; // Make sure to asign your reg out signals
-	
+		
 	assign w_bus_select_signals = {in_c_read, in_inport_read, in_mdr_read, in_pc_read, in_z_lo_read, in_z_hi_read, in_lo_read, in_hi_read, in_regfile_read};
 	assign w_c_sign_extend = {{14{w_IR_out[18]}}, w_IR_out[17:0]};
 	assign out_bus = r_bus;
 	assign out_mar = r_mar_out;
 	assign out_mdr = w_MDR_out;
 	assign out_ir = w_IR_out;
+	
+	//assign out_R = w_PC_out; // DE0-Testing
 	
 	registerfile_16x32 regfile( .in_Cdata (r_bus),
 		.in_Cselect (in_regfile_location),
@@ -72,11 +74,11 @@ module datapath(input clk,
 		.in_write (in_regfile_write),
 		.in_read (in_regfile_read),
 		.in_clk (clk),
-		.in_BAout (in_BAout)
-	);
+		.in_BAout (in_BAout));
 	
 	register_32 OutPort (
 		.D (r_bus),
+		//.D (w_PC_out),
 		.Q (out_outport),
 		.clk (clk),
 		.clr (in_reg_clear),
