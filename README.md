@@ -16,4 +16,45 @@ RISC-style CPU developed in Verilog for deployment on an Altera Cyclone DE0-CV F
 ## Instruction Set
 The CPU has the following instructions:
 
+### Load and Store Instructions
+- ld (Load)
+- ldi (Load Immediate)
+- st (Store)
 
+### Arithmetic and Logical Instructions
+- add (Addition)
+- sub (Subtraction)
+- shr (Shift Right)
+- shl (Shift Left)
+- ror (Rotate Right)
+- rol (Rotate Left)
+- and (Bitwise AND)
+- or (Bitwise OR)
+- addi (Add immediate)
+- andi (Bitwise AND with immediate)
+- ori (Bitwise OR with immediate)
+- mul (Multiply)
+- div (Divide)
+- neg (Negate)
+- not (Bitwise NOT)
+
+### Conditional Branch Instructions
+- brzr (Branch if zero)
+- brnz (Branch if not zero)
+- brmi (Branch if negative)
+- brpl (Branch if positive)
+
+### Jump Instructions
+- jr (Return from procedure)
+- jal (Jump and Link)
+
+### I/O Instructions
+- in (Read from inport)
+- out (Write to outport)
+
+
+### Misc Instructions
+- mfhl (Move from HI register)
+- mflo (Move from LO register)
+- nop (No operation)
+- halt (Stop execution)
